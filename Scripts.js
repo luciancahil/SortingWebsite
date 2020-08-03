@@ -35,7 +35,7 @@ function randomize(){
 
 }
 
-//Allows two Nodes to Be Swapped
+//Allows two Nodes to Be Swapped when clicked
 var selected = false;       //stores whether or not a node is currently selected
 var selectedNode;           //stores the node currently selected
 
@@ -59,6 +59,31 @@ function manualswitchNodes(e){
         selctedNode = null;
     }
 }
+
+
+
+function selectionSort(){
+    let order = getOrder();
+    alert(order);
+    for(let m = 0; m < numNodes - 1; m++){
+        let smallest = m;
+        for(let n = m + 1; n < numNodes; n++){
+            if(order[n] < order[smallest]){
+                smallest = n;
+            }
+        }
+
+        let temp = order[m];
+        order[m] = order[smallest];
+        order[smallest] = temp;
+        switchNodes(nodes[m], nodes[smallest]);
+    }
+
+    alert(order);
+}
+
+
+
 
 //Changes the explanation text to match the sorting type
 const explaination = document.getElementById("writeup");        //The Text at the bottom of the page explaing the sorting method
@@ -140,4 +165,23 @@ function switchNodes(nodeOne, nodeTwo){
     let tempSize = nodeOne.classList[1];
     setClass(nodeOne, 1, nodeTwo.classList[1]);       //set this's size to the already selected one
     setClass(nodeTwo, 1, tempSize);                //set the Selected Node to this's size
+}
+
+
+/*
+This function returns the current sizes of the nodes in order
+*/
+
+function getOrder(){
+    let order = [];         //stores the size of the nodes in order
+
+    for(i = 0; i < numNodes; i++){
+        let node = nodes[i];            //gets the first Node
+        let size = node.classList[1];   //gets the class that controls the size
+        let stringNum = size.substring(1);      //removes the s at the begining of the class name to get a number
+        let number = parseInt(stringNum);       //converts that number into an int data type
+        order.push(number - 1);
+    }
+
+    return order;
 }
