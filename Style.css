@@ -127,35 +127,35 @@ body #Steps {
 }
 
 /*Stores information about the height*/
-.branch .One{
+.branch .s1{
     height: 5%;
 }
 
-.branch .Two{
+.branch .s2{
     height: 15%;
 }
-.branch .Three{
+.branch .s3{
     height: 25%;
 }
-.branch .Four{
+.branch .s4{
     height: 35%;
 }
-.branch .Five{
+.branch .s5{
     height: 45%;
 }
-.branch .Six{
+.branch .s6{
     height: 55%;
 }
-.branch .Seven{
+.branch .s7{
     height: 65%;
 }
-.branch .Eight{
+.branch .s8{
     height: 75%;
 }
-.branch .Nine{
+.branch .s9{
     height: 85%;
 }
-.branch .Ten{
+.branch .s10{
     height: 95%;
 }
 
