@@ -118,14 +118,15 @@ body #Steps {
     position: relative;
 }
 
-.branch div{
+/*For Every Node */
+.branch .Node{
     width:100%;
-    background-color: pink;
     position: absolute;
     bottom:0;
     border-top:solid;
 }
 
+/*Stores information about the height*/
 .branch .One{
     height: 5%;
 }
@@ -158,6 +159,16 @@ body #Steps {
     height: 95%;
 }
 
+/*Stores information about color*/
+
+.branch .Default{
+    background-color: pink;
+}
+
+
+.branch .Selected{
+    background-color: red;
+}
 
 
 
