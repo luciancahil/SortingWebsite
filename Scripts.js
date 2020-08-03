@@ -1,4 +1,33 @@
+//TODO Finish the Switch Event
 var sortSelector = document.getElementById("sortSelector");     //The dropdown menu where you can select what type of sort
+var nodes = document.getElementsByClassName("Node");
+
+//order of node classes (generic, size, color)
+
+//Allows two Nodes to Be Swapped
+var selected = false;       //stores whether or not a node is currently selected
+var selectedNode;           //stores the node currently selected
+
+for(i = 0; i < 10; i++){
+    nodes[i].addEventListener('mousedown', manualswitchNodes);
+}
+
+function manualswitchNodes(e){
+    if(!selected){
+        selectedNode = this;
+        setClass(this, 2, "Selected");
+        selected = true;
+    }else{
+        selected = false
+        if(this == selectedNode){               //reset it to default
+            setClass(this, 2, "Default");
+        }else{
+            switchNodes(this, selectedNode);
+            setClass(selectedNode, 2, "Default");               //set the old node to default color
+        }
+        selctedNode = null;
+    }
+}
 
 //Changes the explanation text to match the sorting type
 var explaination = document.getElementById("writeup");
@@ -14,7 +43,7 @@ var BogoExplanation = "<p>You're crazy</p>";
 sortSelector.addEventListener('change', updateExplain);
 
 function updateExplain(e){
-    var sortType = sortSelector.value;
+    var sortType = sortSelector.value;      //checks to see what we have set the selector to
     
     switch(sortType){
         case "Selection":
@@ -39,4 +68,46 @@ function updateExplain(e){
             explaination.innerHTML = BogoExplanation;
             break;
     }
+}
+
+//Helper Methods
+
+
+/*
+This function switches the class of a node to a new slected one
+
+
+@param node: the node whoes class I want to change
+@param index: the index of the class I want to change
+@param  newClass: The new class I want in the given index
+*/
+function setClass(node, index, newClass){
+    var newClasses = [];
+    var classList = node.classList;
+    
+    for(i = 2; i >= 0; i--){
+        newClasses.unshift(node.classList[i]);
+        classList.remove(classList[i]);
+    }
+
+    newClasses[index] = newClass;
+
+    
+    for(i = 0; i < 3; i++){
+        classList.add(newClasses[i]);
+    }
+}
+
+/*
+This Function switches the heights of two Nodes, taking the node themselves as Parameters
+
+@param nodeOne, nodeTwo: Nodes to be switched
+*/
+
+
+function switchNodes(nodeOne, nodeTwo){
+    console.log(nodeOne.classList);
+    var tempSize = nodeOne.classList[1];
+    setClass(nodeOne, 1, nodeTwo.classList[1]);       //set this's size to the already selected one
+    setClass(nodeTwo, 1, tempSize);                //set the Selected Node to this's size
 }
