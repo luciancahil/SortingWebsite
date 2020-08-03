@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    
 </head>
 <body>
     <div class = "titleOuter">
@@ -15,17 +16,16 @@
             <div class = "outer">
                 <div id = "display">
                     <div id = "Arena">
-                        <span class = "branch"><div id = "Branch1" class = "One"></div></span>
-                        <span class = "branch"><div id = "Branch2" class = "Two"></div></span>
-                        <span class = "branch"><div id = "Branch3" class = "Three"></div></span>
-                        <span class = "branch"><div id = "Branch4" class = "Four"></div></span>
-                        <span class = "branch"><div id = "Branch5" class = "Five"></div></span>
-                        <span class = "branch"><div id = "Branch6" class = "Six"></div></span>
-                        <span class = "branch"><div id = "Branch7" class = "Seven"></div></span>
-                        <span class = "branch"><div id = "Branch8" class = "Eight"></div></span>
-                        <span class = "branch"><div id = "Branch9" class = "Nine"></div></span>
-                        <span class = "branch"><div id = "Branch10" class = "Ten"></div></span>
-
+                        <span class = "branch"><div id = "Branch1" class = "Node One"></div></span>
+                        <span class = "branch"><div id = "Branch2" class = "Node Two"></div></span>
+                        <span class = "branch"><div id = "Branch3" class = "Node Three"></div></span>
+                        <span class = "branch"><div id = "Branch4" class = "Node Four"></div></span>
+                        <span class = "branch"><div id = "Branch5" class = "Node Five"></div></span>
+                        <span class = "branch"><div id = "Branch6" class = "Node Six"></div></span>
+                        <span class = "branch"><div id = "Branch7" class = "Node Seven"></div></span>
+                        <span class = "branch"><div id = "Branch8" class = "Node Eight"></div></span>
+                        <span class = "branch"><div id = "Branch9" class = "Node Nine"></div></span>
+                        <span class = "branch"><div id = "Branch10" class = "Node Ten"></div></span>
                     </div>
                     <div id = "Steps"><div id = "StepWrapper"><u>Steps</u></div></div>
                 </div>
@@ -33,15 +33,20 @@
                     <button id = "nextStep">Next Step</button>
                     <button id = "radomize">Randomize</button>
                     <button id = "sortAll">Sort</button>
-                    <select>
+                    <select id = "sortSelector">
                         <option value="Selection">Selection</option>
                         <option>Quick</option>
+                        <option>Bubble</option>
+                        <option>Insertion</option>
+                        <option>Merge</option>
+                        <option>Heap</option>
+                        <option>Bogo</option>
                     </select>
                 </div>
                 <div id = "explanation">
                     <h1>Explanation</h1>
                     <div id= "writeup">
-                        <p>Selection works by iterating through each element, and swaping the smallest element with the first element that isn't yet sorted.</p>
+                        <p>Selection sort works by iterating through each element, and swaping the smallest element with the first element that isn't yet sorted.</p>
                     </div>
                 </div>
         </div>
@@ -50,3 +55,4 @@
 </html>
 
 <link rel="stylesheet" type="text/css" href="Style.css">
+<script src="Scripts.js"></script>
