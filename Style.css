@@ -1,0 +1,183 @@
+body {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    margin: auto;
+    background: white;
+}
+
+.titleOuter{
+    background: red;
+    padding: 0px;
+    margin-bottom: 20px;
+}
+
+.titleOuter h1 {
+    text-align: center;
+    font-size: 300%;
+    width: 50%;
+    margin: auto;
+    margin-bottom: 20px;
+}
+
+
+#allcontainer .outer{
+    padding: 20px;
+    width: 100%;
+}
+
+#display {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+    width: 80%;
+    margin: auto;
+    height: 500px;
+    margin-bottom: 20px;
+}
+
+#Arena {
+    border-style: solid;
+    height: 50%;
+    width: 50%; 
+    margin-bottom: 10px;
+}
+
+#Steps {
+    height: 50%;
+    width: 50%;
+    border-style: solid;
+    margin-bottom: 10px;
+}
+
+body #Steps {
+    margin-left: 2.5%;
+    width: 30%;
+    height: 100%;
+  }
+
+  body #Steps #StepWrapper{
+      width:100%;
+      text-align: center;
+      font-size: 200%;
+  }
+
+#buttons {
+    margin: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#buttons button {
+    margin-bottom: 10px;
+}
+
+#buttons selection{
+    height:30px;
+    width:109px;
+    height:32px;
+}
+
+#buttons *{
+    font-size: 40px;
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+#radomize {
+    float: right;
+}
+
+#explanation{
+    padding: 50px;
+}
+
+#explanation p{
+    font-size: 30px;
+}
+
+#explanation h1{
+    text-align: center;
+    font-size
+}
+
+
+/*The Below is about storing the information for each line inside the array
+
+
+*/
+
+.branch{
+    float: left;
+    width: 10%;
+    height: 100%;
+    background-color: white;
+    border:solid;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.branch div{
+    width:100%;
+    background-color: pink;
+    position: absolute;
+    bottom:0;
+    border-top:solid;
+}
+
+.branch .One{
+    height: 5%;
+}
+
+.branch .Two{
+    height: 15%;
+}
+.branch .Three{
+    height: 25%;
+}
+.branch .Four{
+    height: 35%;
+}
+.branch .Five{
+    height: 45%;
+}
+.branch .Six{
+    height: 55%;
+}
+.branch .Seven{
+    height: 65%;
+}
+.branch .Eight{
+    height: 75%;
+}
+.branch .Nine{
+    height: 85%;
+}
+.branch .Ten{
+    height: 95%;
+}
+
+
+
+
+
+@media only screen and (min-width: 751px) {
+   #display {
+    flex-direction: row;
+  }
+  
+  body #Arena {
+    margin-right: 2.5%;
+    width: 65%; 
+    height:100%;
+
+  }
+
+
+
+  body #buttons{
+    flex-direction: row;
+  }
+}
