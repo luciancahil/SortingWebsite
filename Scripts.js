@@ -67,8 +67,6 @@ function updateExplain(e){
             explaination.innerHTML = BogoExplanation;
             break;
     }
-<<<<<<< HEAD
-=======
 }
 
 //Helper Methods
@@ -111,5 +109,4 @@ function switchNodes(nodeOne, nodeTwo){
     var tempSize = nodeOne.classList[1];
     setClass(nodeOne, 1, nodeTwo.classList[1]);       //set this's size to the already selected one
     setClass(nodeTwo, 1, tempSize);                //set the Selected Node to this's size
->>>>>>> dbe6c8259c47f57c090d96a5891e7aedfac97e62
 }
