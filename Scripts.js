@@ -3,6 +3,12 @@ var nodes = document.getElementsByClassName("Node");
 const numNodes = nodes.length;
 var wait;       //the variable that will store all setInterval() objects
 
+//The following are meant to help the nextStep button
+var started = false;        //for help with the "Next Step" button. Determines whether the function needs to setup the arrays or can proceed to the next step
+var nextStepOrder;          //the array that wil be used to store the next current order
+var done = false;           //Checks if the array is done or not
+
+
 //order of node classes (generic, size, color)
 
 
@@ -11,6 +17,10 @@ var wait;       //the variable that will store all setInterval() objects
 function randomize(){
     let intList = [];           //stores intergers from - to numNodes -1
     let classes = [];           //stores the classes in order for the first node to the last
+    resetSteps();               //resets the steps display to be blank
+    resetSelection();
+    done = false;               
+    started = false;
     
     for(i = 0; i < numNodes; i++){        //we have now created a list of numbers from 0 to numNodes -1 inclusive
         intList.push(i);
@@ -22,6 +32,7 @@ function randomize(){
         let size = nodes[randomNumber].classList[1];    //selects the size from the chosen element
         classes.push(size);     
         intList[index] = intList[i];                //moves the last elment into the spot of the element just chosen
+        
     } 
     
 
@@ -67,17 +78,36 @@ var selectionOrder;
 var selectionSorted = 0;    //how many nodes in the array are already sorted
 var selectionStepNum = 1;     //Which step we are currently on
 
-function selectionSort(){
-    resetSteps();
+function selectionSort(){           //this is run when the "sort" button is pressed for selection sort
     selectionOrder = getOrder();                //sets selectionOrder to be the current order of the nodes
     wait = setInterval(selectionSwap, 500);     //calls each selection with a .5 second delay
+    resetSelection()
+}
+
+function runSelectionSteps(){           //meant for use with the Next Step Button
+    if(!started){
+        selectionOrder = getOrder();                //sets selectionOrder to be the current order of the nodes
+        started = true;                             //next time, proceed straight to running Selection swap rather than recreating the list
+    }
+
+    if(!done){
+        selectionSwap();
+    }else{
+        resetSelection();
+    }
+}
+
+function resetSelection(){
     selectionSorted = 0;            //reset the number of sorted so that we can use it again without refreshing
     selectionStepNum = 1;           //reset the number of steps
 }
 
+
 function selectionSwap(){
-    if(selectionSorted == (numNodes - 2)){          //checks if the array is already sorted (-2 because if everything but the last is in proper place, the last must be the largest, and therefor sorted)
+    if(selectionSorted >= (numNodes - 1)){          //checks if the array is already sorted (-2 because if everything but the last is in proper place, the last must be the largest, and therefor sorted)
         clearInterval(wait);
+        done = true;
+        return;
     }
 
     let smallest = selectionSorted;                         //Set smallest to be the index of the smalles non sorted node
@@ -97,7 +127,6 @@ function selectionSwap(){
     selectionStepNum++;     //increments the step number
     selectionSorted++;      //increments the number of sorted arrays
 }
-
 
 
 
