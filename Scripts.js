@@ -1,6 +1,7 @@
 var sortSelector = document.getElementById("sortSelector");     //The dropdown menu where you can select what type of sort
 var nodes = document.getElementsByClassName("Node");
 const numNodes = nodes.length;
+var wait;       //the variable that will store all setInterval() objects
 
 //order of node classes (generic, size, color)
 
@@ -61,25 +62,30 @@ function manualswitchNodes(e){
 }
 
 
+//Selection Sort Function
+var selectionOrder;
+var selectionSorted = 0;
 
 function selectionSort(){
-    let order = getOrder();
-    alert(order);
-    for(let m = 0; m < numNodes - 1; m++){
-        let smallest = m;
-        for(let n = m + 1; n < numNodes; n++){
-            if(order[n] < order[smallest]){
-                smallest = n;
-            }
-        }
+    selectionOrder = getOrder();
+    wait = setInterval(selectionSwap, 500);
+    selectionSorted = 0;            //reset the number of sorted so that we can use it again without refreshing
+}
 
-        let temp = order[m];
-        order[m] = order[smallest];
-        order[smallest] = temp;
-        switchNodes(nodes[m], nodes[smallest]);
+function selectionSwap(){
+    if(selectionSorted == (numNodes - 2)){
+        clearInterval(wait);
     }
 
-    alert(order);
+    let smallest = selectionSorted;
+    for(let n = selectionSorted + 1; n < numNodes; n++){
+        if(selectionOrder[n] < selectionOrder[smallest]){
+            smallest = n;
+        }
+    }
+    swapArray(selectionOrder, smallest, selectionSorted);
+    numSwap(selectionSorted, smallest);
+    selectionSorted++;
 }
 
 
@@ -161,7 +167,6 @@ This Function switches the heights of two Nodes, taking the node themselves as P
 
 
 function switchNodes(nodeOne, nodeTwo){
-    console.log(nodeOne.classList);
     let tempSize = nodeOne.classList[1];
     setClass(nodeOne, 1, nodeTwo.classList[1]);       //set this's size to the already selected one
     setClass(nodeTwo, 1, tempSize);                //set the Selected Node to this's size
@@ -184,4 +189,39 @@ function getOrder(){
     }
 
     return order;
+}
+
+
+/*
+This function exists to Switch nodes by index number
+
+@param num1: The num that will cause its corresponding node to switch with num2's corresponding node.
+@param num2: The num that will cause its corresponding node to switch with num1's corresponding node.
+*/
+
+function numSwap(num1, num2){
+    switchNodes(nodes[num1], nodes[num2]);
+}
+
+/*
+This function allows the use of the numSwap array with a setInterval delay
+
+*/
+
+function delayedNumSwap(num1, num2){
+    numSwap(num1, num2);
+    clearInterval(wait);        //all set intervals that use this function are called wait.
+}
+
+/*
+This function switches two values in an array
+
+@param array: The array who's values with be swapped
+@param num1 + num2: The values who will be switched with each other
+*/
+
+function swapArray(array, num1, num2){
+    let temp = array[num1];
+    array[num1] = array[num2];
+    array[num2] = temp;
 }
