@@ -13,14 +13,10 @@ var done = false;           //Checks if the array is done or not
 
 
 //Function for the randomizer button
-
 function randomize(){
     let intList = [];           //stores intergers from - to numNodes -1
     let classes = [];           //stores the classes in order for the first node to the last
-    resetSteps();               //resets the steps display to be blank
-    resetSelection();
-    done = false;               
-    started = false;
+    resetArena();
     
     for(i = 0; i < numNodes; i++){        //we have now created a list of numbers from 0 to numNodes -1 inclusive
         intList.push(i);
@@ -56,12 +52,13 @@ for(i = 0; i < numNodes; i++){
 }
 
 function manualswitchNodes(e){
-    if(!selected){
+    if(!selected){              //no node is sel
         selectedNode = this;
         setClass(this, 2, "Selected");
         selected = true;
     }else{
-        selected = false
+        resetArena();
+        selected = false;
         if(this == selectedNode){               //reset it to default
             setClass(this, 2, "Default");
         }else{
@@ -79,15 +76,19 @@ var selectionSorted = 0;    //how many nodes in the array are already sorted
 var selectionStepNum = 1;     //Which step we are currently on
 
 function selectionSort(){           //this is run when the "sort" button is pressed for selection sort
+    sortSelector.disabled  = true;              //freezes the sortSelector
     selectionOrder = getOrder();                //sets selectionOrder to be the current order of the nodes
     wait = setInterval(selectionSwap, 500);     //calls each selection with a .5 second delay
+    
     resetSelection()
 }
 
 function runSelectionSteps(){           //meant for use with the Next Step Button
     if(!started){
         selectionOrder = getOrder();                //sets selectionOrder to be the current order of the nodes
-        started = true;                             //next time, proceed straight to running Selection swap rather than recreating the list
+        started = true;    
+        sortSelector.disabled = true;
+        resetSelection();                         //next time, proceed straight to running Selection swap rather than recreating the list
     }
 
     if(!done){
@@ -104,12 +105,6 @@ function resetSelection(){
 
 
 function selectionSwap(){
-    if(selectionSorted >= (numNodes - 1)){          //checks if the array is already sorted (-2 because if everything but the last is in proper place, the last must be the largest, and therefor sorted)
-        clearInterval(wait);
-        done = true;
-        return;
-    }
-
     let smallest = selectionSorted;                         //Set smallest to be the index of the smalles non sorted node
     for(let n = selectionSorted + 1; n < numNodes; n++){    //checks every node after this index. If a smallest node is found, check smallest 
         if(selectionOrder[n] < selectionOrder[smallest]){   
@@ -121,11 +116,18 @@ function selectionSwap(){
         swapArray(selectionOrder, smallest, selectionSorted);   //Swap the 2 numbers in the array
         numSwap(selectionSorted, smallest);                     //swap the 2 nodes
     }
-    let nextStep = selectionStepNum + ". Node " + smallest + " was the smallest remaining node. Switch Node " + smallest + " with current Node " + selectionSorted + ".";
+    let nextStep = selectionStepNum + ". Node " + (smallest + 1) + " was the smallest remaining node. Switch Node " + (smallest + 1) + " with current Node " + (selectionSorted + 1) + ".";
 
     addStep(nextStep);      //Adds the step onto the step box
     selectionStepNum++;     //increments the step number
     selectionSorted++;      //increments the number of sorted arrays
+
+    if(selectionSorted >= (numNodes - 1)){
+        clearInterval(wait);                        //prevent the loop from continuing on sort button
+        done = true;                                //causes next step button to do nothing
+        sortSelector.disabled = false;              //allows for the selection of new sorting types
+        return;
+    }
 }
 
 
@@ -224,6 +226,17 @@ function swapArray(array, num1, num2){
     let temp = array[num1];
     array[num1] = array[num2];
     array[num2] = temp;
+}
+
+
+/*
+This function is meant to prepare the arena for sorting functions, and is called when a manual swap or randomization happens
+*/
+function resetArena(){
+    resetSteps();               //resets the steps display to be blank
+    done = false;               
+    started = false;
+    sortSelector.disabled = false;      //incase nextStep gets interrupred by hitting select
 }
 
 /*
