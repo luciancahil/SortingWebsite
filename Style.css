@@ -49,6 +49,11 @@ body {
     width: 50%;
     border-style: solid;
     margin-bottom: 10px;
+    overflow: scroll;
+}
+
+$Steps p{
+    font-size: 150%;
 }
 
 body #Steps {

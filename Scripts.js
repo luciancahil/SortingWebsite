@@ -64,73 +64,44 @@ function manualswitchNodes(e){
 
 //Selection Sort Function
 var selectionOrder;
-var selectionSorted = 0;
+var selectionSorted = 0;    //how many nodes in the array are already sorted
+var selectionStepNum = 1;     //Which step we are currently on
 
 function selectionSort(){
-    selectionOrder = getOrder();
-    wait = setInterval(selectionSwap, 500);
+    resetSteps();
+    selectionOrder = getOrder();                //sets selectionOrder to be the current order of the nodes
+    wait = setInterval(selectionSwap, 500);     //calls each selection with a .5 second delay
     selectionSorted = 0;            //reset the number of sorted so that we can use it again without refreshing
+    selectionStepNum = 1;           //reset the number of steps
 }
 
 function selectionSwap(){
-    if(selectionSorted == (numNodes - 2)){
+    if(selectionSorted == (numNodes - 2)){          //checks if the array is already sorted (-2 because if everything but the last is in proper place, the last must be the largest, and therefor sorted)
         clearInterval(wait);
     }
 
-    let smallest = selectionSorted;
-    for(let n = selectionSorted + 1; n < numNodes; n++){
-        if(selectionOrder[n] < selectionOrder[smallest]){
+    let smallest = selectionSorted;                         //Set smallest to be the index of the smalles non sorted node
+    for(let n = selectionSorted + 1; n < numNodes; n++){    //checks every node after this index. If a smallest node is found, check smallest 
+        if(selectionOrder[n] < selectionOrder[smallest]){   
             smallest = n;
         }
     }
-    swapArray(selectionOrder, smallest, selectionSorted);
-    numSwap(selectionSorted, smallest);
-    selectionSorted++;
-}
 
-
-
-
-//Changes the explanation text to match the sorting type
-const explaination = document.getElementById("writeup");        //The Text at the bottom of the page explaing the sorting method
-
-const SelectionExplanation = "<p>Selection sort works by iterating through each element, and swaping the smallest element with the first element that isn't yet sorted.</p>"
-const QuickExplanation = "<p>Quick sort works by choosing the middle element, and then dividing each element into 2 groups: one larger than the chosen element, and one smaller. Repeat for each subgroup until each subgroup is only one elment large, and we have a sorted list</p>"
-const BubbleExplanation = "<p>Bubble sort works by setting the first element as the main element and comparing it to the next. If the element is larger than the next, switch. Otherwise, set the next element as the main elment. Repeat until the main elment is at the end of the list (the largest is now the larges). Repeat for each element</p>";
-const InsertionExplation = "<p>Insertion sort works by taking an already sorted array at the start (An array of One is sorted), and swapping the next element with the next largest sorted element until the next element is in the proper order. Repeat for each element</p>"
-const MergeExplanation = "<p>Merge sort works by breaking each half of the list into a sorted array. We then add the smallest element from each subarray into a new array, repeating until both subarrays are exhausted. We then copy each element in order from the new array to the old array.</p>";
-const HeapExplanation = "<p>Heap sort works by converting the list into a maximum heap. We then swap the first (largest) element with the last, remove the last element from the heap into the next spot of the sorted array, and then sink the new first element of the heap until we have a valid heap again. Repeat until the heap is empty.</p>";
-const BogoExplanation = "<p>You're crazy</p>";
-
-sortSelector.addEventListener('change', updateExplain);
-
-function updateExplain(e){
-    let sortType = sortSelector.value;      //checks to see what we have set the selector to
-    
-    switch(sortType){
-        case "Selection":
-            explaination.innerHTML = SelectionExplanation;
-            break;
-        case "Quick":
-            explaination.innerHTML = QuickExplanation;
-            break;
-        case "Bubble":
-            explaination.innerHTML = BubbleExplanation;
-            break;
-        case "Insertion":
-            explaination.innerHTML = InsertionExplation;
-            break;
-        case "Merge":
-            explaination.innerHTML = MergeExplanation;
-            break;
-        case "Heap":
-            explaination.innerHTML = HeapExplanation;
-            break;
-        case "Bogo":
-            explaination.innerHTML = BogoExplanation;
-            break;
+    if(smallest != selectionSorted){                            //If true, then the node is already in the correct place, no need for any switching
+        swapArray(selectionOrder, smallest, selectionSorted);   //Swap the 2 numbers in the array
+        numSwap(selectionSorted, smallest);                     //swap the 2 nodes
     }
+    let nextStep = selectionStepNum + ". Node " + smallest + " was the smallest remaining node. Switch Node " + smallest + " with current Node " + selectionSorted + ".";
+
+    addStep(nextStep);      //Adds the step onto the step box
+    selectionStepNum++;     //increments the step number
+    selectionSorted++;      //increments the number of sorted arrays
 }
+
+
+
+
+
 
 //Helper Methods
 
@@ -224,4 +195,64 @@ function swapArray(array, num1, num2){
     let temp = array[num1];
     array[num1] = array[num2];
     array[num2] = temp;
+}
+
+/*
+This function adds text into the explnations.
+
+@param step: the text that will be added.
+*/
+const steps = document.getElementById("Steps");
+const initialStep = steps.innerHTML;        //stores the initial HTML of steps
+
+function addStep(step){
+    let oldSteps = steps.innerHTML;            //explnation before adding anything
+    let append =  "<p>" + step + "</p>";            //what will be added in proper html format
+    steps.innerHTML = oldSteps + append;       //adds the text onto the old file.
+}
+
+
+function resetSteps(){
+    steps.innerHTML = initialStep;
+}
+
+//Changes the explanation text to match the sorting type
+const explaination = document.getElementById("writeup");        //The Text at the bottom of the page explaing the sorting method
+
+const SelectionExplanation = "<p>Selection sort works by iterating through each element, and swaping the smallest element with the first element that isn't yet sorted.</p>"
+const QuickExplanation = "<p>Quick sort works by choosing the middle element, and then dividing each element into 2 groups: one larger than the chosen element, and one smaller. Repeat for each subgroup until each subgroup is only one elment large, and we have a sorted list</p>"
+const BubbleExplanation = "<p>Bubble sort works by setting the first element as the main element and comparing it to the next. If the element is larger than the next, switch. Otherwise, set the next element as the main elment. Repeat until the main elment is at the end of the list (the largest is now the larges). Repeat for each element</p>";
+const InsertionExplation = "<p>Insertion sort works by taking an already sorted array at the start (An array of One is sorted), and swapping the next element with the next largest sorted element until the next element is in the proper order. Repeat for each element</p>"
+const MergeExplanation = "<p>Merge sort works by breaking each half of the list into a sorted array. We then add the smallest element from each subarray into a new array, repeating until both subarrays are exhausted. We then copy each element in order from the new array to the old array.</p>";
+const HeapExplanation = "<p>Heap sort works by converting the list into a maximum heap. We then swap the first (largest) element with the last, remove the last element from the heap into the next spot of the sorted array, and then sink the new first element of the heap until we have a valid heap again. Repeat until the heap is empty.</p>";
+const BogoExplanation = "<p>You're crazy</p>";
+
+sortSelector.addEventListener('change', updateExplain);
+
+function updateExplain(e){
+    let sortType = sortSelector.value;      //checks to see what we have set the selector to
+    
+    switch(sortType){
+        case "Selection":
+            explaination.innerHTML = SelectionExplanation;
+            break;
+        case "Quick":
+            explaination.innerHTML = QuickExplanation;
+            break;
+        case "Bubble":
+            explaination.innerHTML = BubbleExplanation;
+            break;
+        case "Insertion":
+            explaination.innerHTML = InsertionExplation;
+            break;
+        case "Merge":
+            explaination.innerHTML = MergeExplanation;
+            break;
+        case "Heap":
+            explaination.innerHTML = HeapExplanation;
+            break;
+        case "Bogo":
+            explaination.innerHTML = BogoExplanation;
+            break;
+    }
 }
