@@ -329,36 +329,56 @@ function selectionFinish(){
 //Bubble Sort
 var bubbleLimit = numNodes;         //stores the limit of how many nodes we need to check on each run
 var bubbleIndex = 0;                //stores the index Node's index
+var bubbleSwap = false;
 
 
 function bubblesort(){
+    addStep("Set node 1 as current and node 2 as \"next\"");
+    
     wait =  setInterval(bubbleStep, delay);
-    /*
-    for(q = numNodes; q > 1; q--){
-        for(r = 0; r < q - 1; r++){
-            if(orderArray[r] > orderArray[r + 1]){
-                swapArray(orderArray, r, r + 1);
-                numSwap(r, r+ 1)
-            }
-        }
-    }*/
 }
 
 
 function bubbleStep(){
-
+    //Bubble sort is done
     if(bubbleLimit == 1){
         clearInterval(wait);
+        sortSelector.disabled = false;
+        addStep("Node 1 is now Sorted");
+        setClass(nodes[0], 2, "Sorted");            //set the first node to be the sorted color
+        bubbleLimit = numNodes;
+        bubbleIndex = 0;
+        return;
+    }
+
+    //switch two Nodes
+    if(bubbleSwap){
+        addStep("Current Node " + (bubbleIndex + 1) + " is larger than next Node " + (bubbleIndex + 2) + ". Switch the two nodes");
+        swapArray(orderArray, bubbleIndex, bubbleIndex + 1);
+        numSwap(bubbleIndex, bubbleIndex + 1);
+        bubbleSwap = false;
+        bubbleIndex++;
+        return;
     }
     
-    if(bubbleIndex < bubbleLimit){
+    if(bubbleIndex < bubbleLimit - 1){
+        addStep("Compare current Node " + (bubbleIndex + 1) + " next Node " + (bubbleIndex + 2) + ".");
+        if(bubbleIndex > 0){
+            setClass(nodes[bubbleIndex - 1], 2, "Default"); 
+        }
+
+        setClass(nodes[bubbleIndex], 2, "Current");             
+        setClass(nodes[bubbleIndex + 1], 2, "Index");
         if(orderArray[bubbleIndex] > orderArray[bubbleIndex + 1]){
-        swapArray(orderArray, bubbleIndex, bubbleIndex + 1);
-        numSwap(bubbleIndex, bubbleIndex + 1)
+            bubbleSwap = true;
+            return;
         }
 
         bubbleIndex++;
     }else{
+        addStep("Node " + (bubbleIndex + 1) +  " is now sorted.");      
+        setClass(nodes[bubbleIndex], 2, "Sorted");                      //set node to sorted color
+        setClass(nodes[bubbleIndex - 1], 2, "Default");                      //set node to sorted color
         bubbleIndex = 0;
         bubbleLimit--;
     }
