@@ -37,7 +37,7 @@ function randomize(){
     } 
     
 
-    //classes now contains size classes in random order.
+    //classes array now contains size classes in random order.
 
     for(j = numNodes - 1; j >= 0; j--){
         let node = nodes[j];
@@ -71,6 +71,63 @@ function manualswitchNodes(e){
             setClass(selectedNode, 2, "Default");               //set the old node to default color
         }
         selctedNode = null;
+    }
+}
+
+
+//The folowing Function will Direct the algorithim to which sort is being used
+
+function findSort(){
+    let decision = sortSelector.value;
+    switch(decision){
+        case "Selection":
+            selectionSort();
+            break;
+        case "Quick":
+            selectionSort();
+            break;
+        case "Bubble":
+            selectionSort();
+            break;
+        case "Insertion":
+            selectionSort();
+            break;
+        case "Merge":
+            selectionSort();
+            break;
+        case "Heap":
+            selectionSort();
+            break;
+        case "Bogo":
+            selectionSort();
+            break;
+    }
+}
+
+function findStep(){
+    let decision = sortSelector.value;
+    switch(decision){
+        case "Selection":
+            runSelectionSteps();
+            break;
+        case "Quick":
+            runSelectionSteps();
+            break;
+        case "Bubble":
+            runSelectionSteps();
+            break;
+        case "Insertion":
+            runSelectionSteps();
+            break;
+        case "Merge":
+            runSelectionSteps();
+            break;
+        case "Heap":
+            runSelectionSteps();
+            break;
+        case "Bogo":
+            runSelectionSteps();
+            break;
     }
 }
 
