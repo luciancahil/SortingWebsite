@@ -119,7 +119,7 @@ function findSort(){
             break;
     }
 
-    sortSelector.disabled = false;              //allows for the selection of new sorting types
+    
 }
 
 
@@ -154,8 +154,6 @@ function findStep(){
                 runSelectionSteps();
                 break;
         }
-    }else{
-        sortSelector.disabled = false;              //allows for the selection of new sorting types
     }
 }
 
@@ -322,15 +320,20 @@ function selectionFinish(){
     setClass(nodes[(numNodes - 1)], 2, "Sorted");       //sets final array to sorted color
     clearInterval(wait);                        //prevent the loop from continuing on sort button
     done = true;                                //causes next step button to do nothing
+    sortSelector.disabled = false;              //allows for the selection of new sorting types
     addStep("Node " + (numNodes) + " is now sorted");
     addStep("All Nodes are now sorted");
 }
 
 
 //Bubble Sort
+var bubbleLimit = numNodes;         //stores the limit of how many nodes we need to check on each run
+var bubbleIndex = 0;                //stores the index Node's index
+
 
 function bubblesort(){
-    alert(orderArray);
+    wait =  setInterval(bubbleStep, delay);
+    /*
     for(q = numNodes; q > 1; q--){
         for(r = 0; r < q - 1; r++){
             if(orderArray[r] > orderArray[r + 1]){
@@ -338,10 +341,27 @@ function bubblesort(){
                 numSwap(r, r+ 1)
             }
         }
-        //console.log(orderArray);
-    }
+    }*/
+}
 
-    alert(orderArray);
+
+function bubbleStep(){
+
+    if(bubbleLimit == 1){
+        clearInterval(wait);
+    }
+    
+    if(bubbleIndex < bubbleLimit){
+        if(orderArray[bubbleIndex] > orderArray[bubbleIndex + 1]){
+        swapArray(orderArray, bubbleIndex, bubbleIndex + 1);
+        numSwap(bubbleIndex, bubbleIndex + 1)
+        }
+
+        bubbleIndex++;
+    }else{
+        bubbleIndex = 0;
+        bubbleLimit--;
+    }
 }
 
 
