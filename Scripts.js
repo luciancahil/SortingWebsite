@@ -1,4 +1,3 @@
-//todo: Implement the bubblesort array
 var sortSelector = document.getElementById("sortSelector");     //The dropdown menu where you can select what type of sort
 var nodes = document.getElementsByClassName("Node");            //An array of Nodes to be sorted
 const numNodes = nodes.length;
@@ -106,7 +105,7 @@ function findSort(){
             bubblesort();
             break;
         case "Insertion":
-            selectionSort();
+            insertionSort();
             break;
         case "Merge":
             selectionSort();
@@ -492,6 +491,43 @@ function bubbleEnd(){
     sortSelector.disabled = false;
     done = true;
 }
+
+
+
+/*
+
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+*/
+
+
+
+function insertionSort(){
+    orderArray = getOrder();
+    alert(orderArray);
+    for(q = 0; q < numNodes; q++){
+        let z = q;
+        while(z > 0 && orderArray[z] < orderArray[z - 1]){
+            swapArray(orderArray, z, z - 1);
+            numSwap(z, z - 1);
+            z--;
+        }
+    }
+    alert(orderArray);
+}
+
+
+
+
+
 
 
 //Helper Methods
