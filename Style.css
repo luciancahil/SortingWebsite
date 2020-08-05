@@ -170,10 +170,30 @@ body #Steps {
     background-color: pink;
 }
 
-
 .branch .Selected{
+    background-color: green;
+}
+
+.branch .Index{
+    background-color: yellow;
+}
+
+.branch .Sorted{
+    background-color: brown;
+}
+
+.branch .Current{
     background-color: red;
 }
+
+.branch .Special{
+    background-color: blue;
+}
+
+.branch .Combined{
+    background-color: purple;
+}
+
 
 
 
