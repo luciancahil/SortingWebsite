@@ -103,7 +103,7 @@ function findSort(){
             selectionSort();
             break;
         case "Bubble":
-            selectionSort();
+            bubblesort();
             break;
         case "Insertion":
             selectionSort();
@@ -118,6 +118,8 @@ function findSort(){
             selectionSort();
             break;
     }
+
+    sortSelector.disabled = false;              //allows for the selection of new sorting types
 }
 
 
@@ -128,28 +130,32 @@ function findStep(){
     }
 
     let decision = sortSelector.value;
-    switch(decision){
-        case "Selection":
-            runSelectionSteps();
-            break;
-        case "Quick":
-            runSelectionSteps();
-            break;
-        case "Bubble":
-            runSelectionSteps();
-            break;
-        case "Insertion":
-            runSelectionSteps();
-            break;
-        case "Merge":
-            runSelectionSteps();
-            break;
-        case "Heap":
-            runSelectionSteps();
-            break;
-        case "Bogo":
-            runSelectionSteps();
-            break;
+    if(!done){    
+        switch(decision){
+            case "Selection":
+                runSelectionSteps();
+                break;
+            case "Quick":
+                runSelectionSteps();
+                break;
+            case "Bubble":
+                runSelectionSteps();
+                break;
+            case "Insertion":
+                runSelectionSteps();
+                break;
+            case "Merge":
+                runSelectionSteps();
+                break;
+            case "Heap":
+                runSelectionSteps();
+                break;
+            case "Bogo":
+                runSelectionSteps();
+                break;
+        }
+    }else{
+        sortSelector.disabled = false;              //allows for the selection of new sorting types
     }
 }
 
@@ -316,19 +322,26 @@ function selectionFinish(){
     setClass(nodes[(numNodes - 1)], 2, "Sorted");       //sets final array to sorted color
     clearInterval(wait);                        //prevent the loop from continuing on sort button
     done = true;                                //causes next step button to do nothing
-    sortSelector.disabled = false;              //allows for the selection of new sorting types
     addStep("Node " + (numNodes) + " is now sorted");
     addStep("All Nodes are now sorted");
 }
 
 
-
 //Bubble Sort
 
+function bubblesort(){
+    alert(orderArray);
+    for(q = numNodes; q > 1; q--){
+        for(r = 0; r < q - 1; r++){
+            if(orderArray[r] > orderArray[r + 1]){
+                swapArray(orderArray, r, r + 1);
+                numSwap(r, r+ 1)
+            }
+        }
+        //console.log(orderArray);
+    }
 
-//This function is called for the "sort" button on bubble sort
-function bubbleSort(){
-    
+    alert(orderArray);
 }
 
 
