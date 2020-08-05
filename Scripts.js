@@ -2,6 +2,7 @@ var sortSelector = document.getElementById("sortSelector");     //The dropdown m
 var nodes = document.getElementsByClassName("Node");
 const numNodes = nodes.length;
 var wait;       //the variable that will store all setInterval() objects
+var delay = 100;      //stores how many milliseconds each animation is delayed by
 
 //The following are meant to help the nextStep button
 var started = false;        //for help with the "Next Step" button. Determines whether the function needs to setup the arrays or can proceed to the next step
@@ -103,7 +104,7 @@ function selectionSort(){           //this is run when the "sort" button is pres
         startSelection();
     }
 
-    wait = setInterval(selectionStep, 100);     //calls each selection with a .5 second delay
+    wait = setInterval(selectionStep, delay);     //calls each selection with a .5 second delay
 }
 
 function runSelectionSteps(){           //meant for use with the Next Step Button
@@ -401,4 +402,15 @@ function updateExplain(e){
             explaination.innerHTML = BogoExplanation;
             break;
     }
+}
+
+
+//The following allows for the user to control the delay 
+
+const delayInput = document.getElementById("delayInput");
+
+delayInput.addEventListener('change', updateValue);
+
+function updateValue(){
+    delay = this.value;
 }
