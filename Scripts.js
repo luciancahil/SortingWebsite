@@ -74,63 +74,144 @@ function manualswitchNodes(e){
 var selectionOrder;
 var selectionSorted = 0;    //how many nodes in the array are already sorted
 var selectionStepNum = 1;     //Which step we are currently on
+var selectionSmallest;         //index of the smalles unsorted node so far
+var selectionCompareTo;       //index of the Node being compared to the smallest Index
+var sortedSwitchStep = 1;      //Switching 2 nodes takes 3 steps. This stores which one we are on.
+var foundNewSorted = false;     //stores whether we are supposed to change the smallest index on this step
+
+
+//function to get the arena set up for selection sorting
+function startSelection(){      
+    sortedSwitchStep = 1;         
+    sortSelector.disabled  = true;              //freezes the sortSelector
+    resetColor();
+    selectionOrder = getOrder();                //sets selectionOrder to be the current order of the nodes
+    started = true;
+    selectionSorted = 0;            //reset the number of sorted so that we can use it again without refreshing
+    selectionStepNum = 2;           //reset the number of steps
+    selectionCompareTo = 1;
+    selectionSmallest = 0;
+    let firstStep = "1. Node 1 is the first unsorted Array. Set Node 1 to \"smallest\"";
+    addStep(firstStep);
+    setClass(nodes[0], 2, "Combined");
+    foundNewSorted = false;
+}
 
 function selectionSort(){           //this is run when the "sort" button is pressed for selection sort
-    sortSelector.disabled  = true;              //freezes the sortSelector
-    selectionOrder = getOrder();                //sets selectionOrder to be the current order of the nodes
-    wait = setInterval(selectionSwap, 500);     //calls each selection with a .5 second delay
-    
-    resetSelection()
+
+    if(!started){           //if the next step button has already been pressed, we don't need to run the startSelection function
+        startSelection();
+    }
+
+    wait = setInterval(selectionStep, 100);     //calls each selection with a .5 second delay
 }
 
 function runSelectionSteps(){           //meant for use with the Next Step Button
     if(!started){
-        selectionOrder = getOrder();                //sets selectionOrder to be the current order of the nodes
-        started = true;    
-        sortSelector.disabled = true;
-        resetSelection();                         //next time, proceed straight to running Selection swap rather than recreating the list
-    }
-
-    if(!done){
-        selectionSwap();
+        startSelection();
     }else{
-        resetSelection();
-    }
-}
-
-function resetSelection(){
-    selectionSorted = 0;            //reset the number of sorted so that we can use it again without refreshing
-    selectionStepNum = 1;           //reset the number of steps
-}
-
-
-function selectionSwap(){
-    let smallest = selectionSorted;                         //Set smallest to be the index of the smalles non sorted node
-    for(let n = selectionSorted + 1; n < numNodes; n++){    //checks every node after this index. If a smallest node is found, check smallest 
-        if(selectionOrder[n] < selectionOrder[smallest]){   
-            smallest = n;
+        if(!done){
+            selectionStep();
         }
     }
-
-    if(smallest != selectionSorted){                            //If true, then the node is already in the correct place, no need for any switching
-        swapArray(selectionOrder, smallest, selectionSorted);   //Swap the 2 numbers in the array
-        numSwap(selectionSorted, smallest);                     //swap the 2 nodes
-    }
-    let nextStep = selectionStepNum + ". Node " + (smallest + 1) + " was the smallest remaining node. Switch Node " + (smallest + 1) + " with current Node " + (selectionSorted + 1) + ".";
-
-    addStep(nextStep);      //Adds the step onto the step box
-    selectionStepNum++;     //increments the step number
-    selectionSorted++;      //increments the number of sorted arrays
-
-    if(selectionSorted >= (numNodes - 1)){
-        clearInterval(wait);                        //prevent the loop from continuing on sort button
-        done = true;                                //causes next step button to do nothing
-        sortSelector.disabled = false;              //allows for the selection of new sorting types
-        return;
-    }
 }
 
 
+function selectionStep(){
+
+    if(foundNewSorted){     //this step, all we are doing is changing the index of the sorted Node
+        
+        let step = selectionStepNum++ + ". Index Node " + (selectionCompareTo + 1) + " is smaller than smallest node " + (selectionSmallest + 1) + ". Set Node " + (selectionCompareTo + 1) + " to \"smallest\"";
+        addStep(step);
+        setClass(nodes[selectionCompareTo], 2, "Selected");     //changing the current node to a blend of index and smallest (selected).
+        
+        if(selectionSmallest == selectionSorted){      //the previous smallest node is the first unsorted node
+            setClass(nodes[selectionSmallest], 2, "Current");
+        }else{
+            setClass(nodes[selectionSmallest], 2, "Default");
+        }
+
+        selectionSmallest = selectionCompareTo;
+        foundNewSorted = false;
+        selectionCompareTo++;
+
+        return;
+    }
+
+    //change the color of the previous if need be
+    if(selectionCompareTo - 1 != selectionSorted){            //if the one before is the first unsorted node, do nothing
+        if(selectionCompareTo - 1 == selectionSmallest){
+            setClass(nodes[selectionCompareTo - 1], 2, "Special");      //if the previous class is the current smallest, set it to the smallest color
+        }else{
+            setClass(nodes[selectionCompareTo - 1], 2, "Default");      //otherwise, set to default color
+        }
+    }
+    
+    
+
+    if(selectionCompareTo < numNodes){    //checks every node after this index. If a smallest node is found, change smallest
+        //adding the step to the step display
+        let step = selectionStepNum++ + ". Compare index Node " + (selectionCompareTo + 1) + " to smallest Node " + (selectionSmallest + 1) +".";
+        addStep(step);
+        
+        setClass(nodes[selectionCompareTo], 2, "Index");        //set the index node to the index color
+
+        //if index is smaller than smallest
+        if(selectionOrder[selectionCompareTo] < selectionOrder[selectionSmallest]){   
+            foundNewSorted = true;
+            return;
+        }
+        selectionCompareTo++;
+
+        return;     //do not run the switch if just finished iterating to find the smallest
+    }
+    //smallest is now guarenteed to be the smallest unsorted node
+
+    if(sortedSwitchStep == 1){     //switch the sizes and colors of the smallest and the first unsored node 
+        swapArray(selectionOrder, selectionSmallest, selectionSorted);
+        numSwap(selectionSmallest, selectionSorted);    //switch the sizes and colors of the smallest and the first unsored node
+        sortedSwitchStep++;
+        let step = selectionStepNum++ + ". Switch current Node " + (selectionSorted + 1) + " and smallest Node " + (selectionSmallest + 1) + ".";
+        addStep(step);
+        return;
+    }else if(sortedSwitchStep == 2){                    //sets the current node to "sorted" color
+        setClass(nodes[selectionSmallest], 2, "Default");
+        setClass(nodes[selectionSorted], 2, "Sorted");  //sets the current node to "sorted" color
+        let step = selectionStepNum++ + ". Current Node " + (selectionSorted + 1) + " is now sorted.";
+        addStep(step);
+        sortedSwitchStep++;
+        return;
+    }else if(sortedSwitchStep == 3){
+
+        if(selectionSorted >= (numNodes - 2)){           //the nodes are now sorted
+            setClass(nodes[(numNodes - 1)], 2, "Sorted");
+            clearInterval(wait);                        //prevent the loop from continuing on sort button
+            done = true;                                //causes next step button to do nothing
+            sortSelector.disabled = false;              //allows for the selection of new sorting types
+            let step = selectionStepNum++ + ". Node " + (numNodes) + " is now sorted";
+            addStep(step);
+            step = selectionStepNum++ + ". All Nodes are now sorted";
+            addStep(step);
+            return;
+        }
+
+        selectionSorted++;      //increments the number of sorted nodes
+        selectionSmallest = selectionSorted;                         //Set smallest to be the index of the smalles non sorted node
+        
+        setClass(nodes[selectionSmallest], 2, "Current");     //changes the color of the next to the "current" color
+        let step = selectionStepNum++ + ". Set Node " + (selectionSmallest + 1) + " as the current node";
+        addStep(step);
+
+        sortedSwitchStep++;
+    }else if(sortedSwitchStep == 4){
+        let step = selectionStepNum++ + ". Set Node " + (selectionSmallest + 1) + " as the smallest node";
+        addStep(step);
+        setClass(nodes[selectionSmallest], 2, "Combined");     //changes the color of the next to the "current" and "smallest" color
+        selectionCompareTo = selectionSorted + 1;
+        sortedSwitchStep = 1;
+    }
+    
+}
 
 
 
@@ -174,6 +255,18 @@ function switchNodes(nodeOne, nodeTwo){
     setClass(nodeTwo, 1, tempSize);                //set the Selected Node to this's size
 }
 
+/*
+This Function switches the heights of two nodes
+
+@param nodeOne, nodeTwo: Nodes to be switched
+*/
+
+function switchColors(node1, node2){
+    let tempColor = node1.classList[2];
+    setClass(node1, 2, node2.classList[2]);
+    setClass(node2, 2, tempColor);
+}
+
 
 /*
 This function returns the current sizes of the nodes in order
@@ -203,7 +296,11 @@ This function exists to Switch nodes by index number
 
 function numSwap(num1, num2){
     switchNodes(nodes[num1], nodes[num2]);
+    switchColors(nodes[num1], nodes[num2]);
 }
+
+
+
 
 /*
 This function allows the use of the numSwap array with a setInterval delay
@@ -237,6 +334,13 @@ function resetArena(){
     done = false;               
     started = false;
     sortSelector.disabled = false;      //incase nextStep gets interrupred by hitting select
+    resetColor();                       //changes all colors back to default
+}
+
+function resetColor(){
+    for(z = 0; z < numNodes; z++){
+        setClass(nodes[z], 2, "Default");
+    }
 }
 
 /*
