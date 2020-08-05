@@ -664,7 +664,8 @@ sortSelector.addEventListener('change', updateExplain);
 
 function updateExplain(e){
     let sortType = sortSelector.value;      //checks to see what we have set the selector to
-    
+    resetArena();
+
     switch(sortType){
         case "Selection":
             explaination.innerHTML = SelectionExplanation;
