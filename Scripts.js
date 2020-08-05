@@ -139,7 +139,7 @@ function findStep(){
                 runSelectionSteps();
                 break;
             case "Bubble":
-                runSelectionSteps();
+                runBubbleStep();
                 break;
             case "Insertion":
                 runSelectionSteps();
@@ -329,9 +329,27 @@ function selectionFinish(){
 //Bubble Sort
 var bubbleLimit = numNodes;         //stores the limit of how many nodes we need to check on each run
 var bubbleIndex = 0;                //stores the index Node's index
-var bubbleSwap = false;
+var bubbleSwap = false;             //does the next step involve switching?
+var bubbleStarted = false;          //Have the bubble sort variables been set to their needs?
 
 
+function bubbleStart(){
+    bubbleLimit = numNodes;
+    bubbleIndex = 0;
+    bubbleStarted = true;
+}
+
+
+//this function fires when the "Next Step" button is pressed
+function runBubbleStep(){
+    if(!bubbleStarted){
+        bubbleStart();
+    }
+
+    bubbleStep();
+}
+
+//to be run when the button "sort" is pressed
 function bubblesort(){
     addStep("Set node 1 as current and node 2 as \"next\"");
     
@@ -346,8 +364,6 @@ function bubbleStep(){
         sortSelector.disabled = false;
         addStep("Node 1 is now Sorted");
         setClass(nodes[0], 2, "Sorted");            //set the first node to be the sorted color
-        bubbleLimit = numNodes;
-        bubbleIndex = 0;
         return;
     }
 
@@ -508,8 +524,11 @@ function resetArena(){
     resetColor();                       //changes all colors back to default
 }
 
+
+//sets all individual "started" booleans as false
 function resetStarted(){
     selectionStarted = false;
+    bubbleStarted = false;
 }
 
 function resetColor(){
