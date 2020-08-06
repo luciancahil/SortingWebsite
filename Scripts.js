@@ -92,6 +92,7 @@ function findSort(){
         startSort();
     }
 
+    document.getElementById("radomize").disabled = true;
 
     let decision = sortSelector.value;
     switch(decision){
@@ -141,7 +142,7 @@ function findStep(){
                 runBubbleStep();
                 break;
             case "Insertion":
-                runSelectionSteps();
+                runInsertionStep();
                 break;
             case "Merge":
                 runSelectionSteps();
@@ -318,6 +319,7 @@ function selectionSetNextSmallest(){
 function selectionFinish(){
     setClass(nodes[(numNodes - 1)], 2, "Sorted");       //sets final array to sorted color
     clearInterval(wait);                        //prevent the loop from continuing on sort button
+    document.getElementById("radomize").disabled = false;
     done = true;                                //causes next step button to do nothing
     sortSelector.disabled = false;              //allows for the selection of new sorting types
     addStep("Node " + (numNodes) + " is now sorted");
@@ -487,6 +489,7 @@ function bubbleLateEnd(){
 }
 
 function bubbleEnd(){
+    document.getElementById("radomize").disabled = false;
     clearInterval(wait);
     sortSelector.disabled = false;
     done = true;
@@ -522,6 +525,8 @@ function insertionStart(){
     setClass(nodes[0], 2, "Sorted");    // Set Node 1 to sorted
 }
 
+
+//runs when the sort button is pressed
 function insertionSort(){
     if(!insertionStarted){
         insertionStart();
@@ -529,6 +534,16 @@ function insertionSort(){
 
     orderArray = getOrder();
     wait = setInterval(insertionStep, delay);
+}
+
+
+//runs when the next step button is pressed
+function runInsertionStep(){
+    if(!insertionStarted){
+        insertionStart();
+    }
+
+    insertionStep();
 }
 
 function insertionStep(){
@@ -573,6 +588,7 @@ function insertionStep(){
         end = true;
         clearInterval(wait);
         sortSelector.disabled = false;
+        document.getElementById("radomize").disabled = false;
         return;
     }
 
