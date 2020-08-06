@@ -541,15 +541,15 @@ function insertionSort(){
 function runInsertionStep(){
     if(!insertionStarted){
         insertionStart();
+    }else{
+        insertionStep();
     }
-
-    insertionStep();
 }
 
 function insertionStep(){
     if(insertionSwap){
         //we have hit the end or a smaller node
-        if((insertionGuest <= 0 || orderArray[insertionGuest] >= orderArray[insertionGuest - 1])){
+        if((insertionGuest <= 0 || orderArray[insertionGuest] >= orderArray[insertionGuest - 1]) && (insertionSwapStep == 1)){  //run the final step to set the new one
             insertionSwap = false;  
             insertionSwapStep = 1;
             insertionBeyond++;
@@ -563,34 +563,42 @@ function insertionStep(){
             }
 
             addStep("Current Node " + (insertionGuest + 1) + " is now sorted.");
+            
+            //have we have sorted the entire array
+            if(insertionBeyond == numNodes){
+                addStep("The array is now sorted.");
+                end = true;
+                clearInterval(wait);
+                sortSelector.disabled = false;
+                document.getElementById("radomize").disabled = false;
+                return;
+            }
+
             return;
         }
 
         if(insertionSwapStep == 1){
-            addStep("Current Node " + (insertionGuest + 1) + " is less than previous node " + insertionGuest +  ". Swap the two nodes");
+            addStep("Current Node " + (insertionGuest + 1) + " is less than previous node " + insertionGuest +  ". Swap the two nodes.");
             swapArray(orderArray, insertionGuest, insertionGuest - 1);
             numSwap(insertionGuest, insertionGuest - 1);            //swap the array with the previous
             insertionSwapStep++;
             insertionGuest--;
+
+            if(insertionGuest == 0){
+                insertionSwapStep = 1;
+            }
+
         }else if(insertionSwapStep == 2){
             setClass(nodes[insertionGuest + 1], 2, "Sorted");           //set the old prev as sorted
             setClass(nodes[insertionGuest], 2, "Current");              //set the new current the correct color
             setClass(nodes[insertionGuest-1], 2, "Special");            //set the new previous as previous color
             insertionSwapStep = 1;
-            addStep("Set Node " + insertionGuest + "as \"prev\"");
+            addStep("Set Node " + insertionGuest + " as \"prev\".");
         }
         return;
     }
 
-    //we have sorted the entire array
-    if(insertionBeyond == numNodes){
-        addStep("The array is now sorted");
-        end = true;
-        clearInterval(wait);
-        sortSelector.disabled = false;
-        document.getElementById("radomize").disabled = false;
-        return;
-    }
+
 
 
 
@@ -598,11 +606,11 @@ function insertionStep(){
     insertionSwap = true;                   //next step is to start swapping
     setClass(nodes[insertionBeyond], 2, "Current");             //give the current node the current color
 
-    if(insertionGuest > 0){
-        setClass(nodes[insertionBeyond - 1], 2, "Special");
-    }
+    
+    setClass(nodes[insertionBeyond - 1], 2, "Special");
+    
 
-    addStep("Set Node " + (insertionGuest + 1) + " as \"current\".");
+    addStep("Set Node " + (insertionGuest + 1) + " as \"current\" and Node " + (insertionGuest + 2) + " as \"prev\".");
 }
 
 
