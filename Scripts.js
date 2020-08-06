@@ -511,7 +511,7 @@ InsertionSort
 InsertionSort
 */
 var insertionBeyond = 0;          //Index of the first untouched Node
-var insertionGuest;                //Index of the node as it's being inserted to the right place
+var insertionRunner;                //Index of the node as it's being inserted to the right place
 var insertionSwap = false;          //Whether we are swapping this step or not
 var insertionStarted = false;       //Have we started insertion sort yet?
 var insertionSwapStep = 1;
@@ -521,7 +521,7 @@ function insertionStart(){
     insertionStarted = true;
     insertionSwap = false;
     insertionBeyond = 1;
-    addStep("Node 1 is now sorted.");
+    addStep("Node 1 is now semi-sorted.");
     setClass(nodes[0], 2, "Sorted");    // Set Node 1 to sorted
 }
 
@@ -549,60 +549,72 @@ function runInsertionStep(){
 function insertionStep(){
     if(insertionSwap){
         //we have hit the end or a smaller node
-        if((insertionGuest <= 0 || orderArray[insertionGuest] >= orderArray[insertionGuest - 1]) && (insertionSwapStep == 1)){  //run the final step to set the new one
-            insertionSwap = false;  
-            insertionSwapStep = 1;
-            insertionBeyond++;
-            setClass(nodes[insertionGuest], 2, "Sorted");       //set this node as the sorted color now (refered to as semisorted);
-            if(insertionGuest < insertionBeyond - 1){
-                setClass(nodes[insertionGuest + 1], 2, "Sorted");   //set the old previous node as sorted
-            }
-            
-            if(insertionGuest > 0){                                 //set the previous node as sorted
-                setClass(nodes[insertionGuest - 1], 2, "Sorted");
-            }
-
-            addStep("Current Node " + (insertionGuest + 1) + " is now sorted.");
-            
-            //have we have sorted the entire array
-            if(insertionBeyond == numNodes){
-                addStep("The array is now sorted.");
-                end = true;
-                clearInterval(wait);
-                sortSelector.disabled = false;
-                document.getElementById("radomize").disabled = false;
-                return;
-            }
-
+        if((insertionRunner <= 0 || orderArray[insertionRunner] >= orderArray[insertionRunner - 1]) && (insertionSwapStep == 1)){  //run the final step to set the new one
+            insertionSetSorted();
             return;
         }
 
         if(insertionSwapStep == 1){
-            addStep("Current Node " + (insertionGuest + 1) + " is less than previous node " + insertionGuest +  ". Swap the two nodes.");
-            swapArray(orderArray, insertionGuest, insertionGuest - 1);
-            numSwap(insertionGuest, insertionGuest - 1);            //swap the array with the previous
-            insertionSwapStep++;
-            insertionGuest--;
-
-            if(insertionGuest == 0){
-                insertionSwapStep = 1;
-            }
-
+            insertionSwapNodes();
         }else if(insertionSwapStep == 2){
-            setClass(nodes[insertionGuest + 1], 2, "Sorted");           //set the old prev as sorted
-            setClass(nodes[insertionGuest], 2, "Current");              //set the new current the correct color
-            setClass(nodes[insertionGuest-1], 2, "Special");            //set the new previous as previous color
-            insertionSwapStep = 1;
-            addStep("Set Node " + insertionGuest + " as \"prev\".");
+            insertionNewPrev();
         }
         return;
     }
 
 
+    insertionNewRunner();
+}
+
+function insertionSetSorted(){
+    insertionSwap = false;  
+    insertionSwapStep = 1;
+    insertionBeyond++;
+    setClass(nodes[insertionRunner], 2, "Sorted");       //set this node as the sorted color now (refered to as semisorted);
+    if(insertionRunner < insertionBeyond - 1){
+        setClass(nodes[insertionRunner + 1], 2, "Sorted");   //set the old previous node as sorted
+    }
+    
+    if(insertionRunner > 0){                                 //set the previous node as sorted
+        setClass(nodes[insertionRunner - 1], 2, "Sorted");
+    }
+
+    addStep("Current Node " + (insertionRunner + 1) + " is now semi-sorted.");
+    
+    //have we have sorted the entire array
+    if(insertionBeyond == numNodes){
+        addStep("The array is now sorted.");
+        end = true;
+        clearInterval(wait);
+        sortSelector.disabled = false;
+        document.getElementById("radomize").disabled = false;
+        return;
+    }
+}
+
+function insertionSwapNodes(){
+    addStep("Current Node " + (insertionRunner + 1) + " is less than previous node " + insertionRunner +  ". Swap the two nodes.");
+    swapArray(orderArray, insertionRunner, insertionRunner - 1);
+    numSwap(insertionRunner, insertionRunner - 1);            //swap the array with the previous
+    insertionSwapStep++;
+    insertionRunner--;
+
+    if(insertionRunner == 0){
+        insertionSwapStep = 1;
+    }
+}
 
 
+function insertionNewPrev(){
+    setClass(nodes[insertionRunner + 1], 2, "Sorted");           //set the old prev as sorted
+    setClass(nodes[insertionRunner], 2, "Current");              //set the new current the correct color
+    setClass(nodes[insertionRunner-1], 2, "Special");            //set the new previous as previous color
+    insertionSwapStep = 1;
+    addStep("Set Node " + insertionRunner + " as \"prev\".");
+}
 
-    insertionGuest = insertionBeyond;       //the next node to enter the sorted array is the first unsorted node
+function insertionNewRunner(){
+    insertionRunner = insertionBeyond;       //the next node to enter the sorted array is the first unsorted node
     insertionSwap = true;                   //next step is to start swapping
     setClass(nodes[insertionBeyond], 2, "Current");             //give the current node the current color
 
@@ -610,12 +622,8 @@ function insertionStep(){
     setClass(nodes[insertionBeyond - 1], 2, "Special");
     
 
-    addStep("Set Node " + (insertionGuest + 1) + " as \"current\" and Node " + (insertionGuest + 2) + " as \"prev\".");
+    addStep("Set Node " + (insertionRunner + 1) + " as \"current\" and Node " + (insertionRunner + 2) + " as \"prev\".");
 }
-
-
-
-
 
 //Helper Methods
 
