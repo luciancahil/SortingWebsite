@@ -510,22 +510,25 @@ InsertionSort
 var insertionBeyond = 0;          //Index of the first untouched Node
 var insertionGuest;                //Index of the node as it's being inserted to the right place
 var insertionSwap = false;          //Whether we are swapping this step or not
+var insertionStarted = false;       //Have we started insertion sort yet?
+var insertionSwapStep = 1;
 
+
+function insertionStart(){
+    insertionStarted = true;
+    insertionSwap = false;
+    insertionBeyond = 1;
+    addStep("Node 1 is now sorted.");
+    setClass(nodes[0], 2, "Sorted");    // Set Node 1 to sorted
+}
 
 function insertionSort(){
+    if(!insertionStarted){
+        insertionStart();
+    }
+
     orderArray = getOrder();
     wait = setInterval(insertionStep, delay);
-    /*
-    alert(orderArray);
-    for(insertionBeyond = 0; insertionBeyond < numNodes; insertionBeyond++){
-        let insertionDeeper = insertionBeyond;
-        while(insertionDeeper > 0 && orderArray[insertionDeeper] < orderArray[insertionDeeper - 1]){
-            swapArray(orderArray, insertionDeeper, insertionDeeper - 1);
-            numSwap(insertionDeeper, insertionDeeper - 1);
-            insertionDeeper--;
-        }
-    }
-    alert(orderArray);*/
 }
 
 function insertionStep(){
@@ -533,27 +536,57 @@ function insertionStep(){
         //we have hit the end or a smaller node
         if((insertionGuest <= 0 || orderArray[insertionGuest] >= orderArray[insertionGuest - 1])){
             insertionSwap = false;  
+            insertionSwapStep = 1;
             insertionBeyond++;
+            setClass(nodes[insertionGuest], 2, "Sorted");       //set this node as the sorted color now (refered to as semisorted);
+            if(insertionGuest < insertionBeyond - 1){
+                setClass(nodes[insertionGuest + 1], 2, "Sorted");   //set the old previous node as sorted
+            }
+            
+            if(insertionGuest > 0){                                 //set the previous node as sorted
+                setClass(nodes[insertionGuest - 1], 2, "Sorted");
+            }
+
+            addStep("Current Node " + (insertionGuest + 1) + " is now sorted.");
             return;
         }
 
-        swapArray(orderArray, insertionGuest, insertionGuest - 1);
-        numSwap(insertionGuest, insertionGuest - 1);
-        insertionGuest--;
+        if(insertionSwapStep == 1){
+            addStep("Current Node " + (insertionGuest + 1) + " is less than previous node " + insertionGuest +  ". Swap the two nodes");
+            swapArray(orderArray, insertionGuest, insertionGuest - 1);
+            numSwap(insertionGuest, insertionGuest - 1);            //swap the array with the previous
+            insertionSwapStep++;
+            insertionGuest--;
+        }else if(insertionSwapStep == 2){
+            setClass(nodes[insertionGuest + 1], 2, "Sorted");           //set the old prev as sorted
+            setClass(nodes[insertionGuest], 2, "Current");              //set the new current the correct color
+            setClass(nodes[insertionGuest-1], 2, "Special");            //set the new previous as previous color
+            insertionSwapStep = 1;
+            addStep("Set Node " + insertionGuest + "as \"prev\"");
+        }
         return;
-        
     }
 
-
+    //we have sorted the entire array
     if(insertionBeyond == numNodes){
+        addStep("The array is now sorted");
         end = true;
         clearInterval(wait);
+        sortSelector.disabled = false;
         return;
     }
 
-    insertionGuest = insertionBeyond;
-    insertionSwap = true;
 
+
+    insertionGuest = insertionBeyond;       //the next node to enter the sorted array is the first unsorted node
+    insertionSwap = true;                   //next step is to start swapping
+    setClass(nodes[insertionBeyond], 2, "Current");             //give the current node the current color
+
+    if(insertionGuest > 0){
+        setClass(nodes[insertionBeyond - 1], 2, "Special");
+    }
+
+    addStep("Set Node " + (insertionGuest + 1) + " as \"current\".");
 }
 
 
@@ -688,6 +721,7 @@ function resetArena(){
 function resetStarted(){
     selectionStarted = false;
     bubbleStarted = false;
+    insertionStarted = false;
 }
 
 function resetColor(){
