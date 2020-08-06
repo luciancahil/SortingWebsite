@@ -52,7 +52,7 @@ body {
     overflow: scroll;
 }
 
-$Steps p{
+#Steps p{
     font-size: 150%;
 }
 

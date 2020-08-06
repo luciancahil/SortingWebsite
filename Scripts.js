@@ -1,4 +1,3 @@
-//todo: Implement the bubblesort array
 var sortSelector = document.getElementById("sortSelector");     //The dropdown menu where you can select what type of sort
 var nodes = document.getElementsByClassName("Node");            //An array of Nodes to be sorted
 const numNodes = nodes.length;
@@ -24,11 +23,11 @@ function randomize(){
     let classes = [];           //stores the classes in order for the first node to the last
     resetArena();
     
-    for(i = 0; i < numNodes; i++){        //we have now created a list of numbers from 0 to numNodes -1 inclusive
+    for(let i = 0; i < numNodes; i++){        //we have now created a list of numbers from 0 to numNodes -1 inclusive
         intList.push(i);
     }
 
-    for(i = numNodes - 1; i >= 0; i--){
+    for(let i = numNodes - 1; i >= 0; i--){
         let index = Math.floor(Math.random() * i); //chooses a random number between 0 and i
         let randomNumber = intList[index];                  //selects the number
         let size = nodes[randomNumber].classList[1];    //selects the size from the chosen element
@@ -40,7 +39,7 @@ function randomize(){
 
     //classes array now contains size classes in random order.
 
-    for(j = numNodes - 1; j >= 0; j--){
+    for(let j = numNodes - 1; j >= 0; j--){
         let node = nodes[j];
         let size = classes[j];
         setClass(node, 1, size);
@@ -53,7 +52,7 @@ function randomize(){
 var selected = false;       //stores whether or not a node is currently selected
 var selectedNode;           //stores the node currently selected
 
-for(i = 0; i < numNodes; i++){
+for(let i = 0; i < numNodes; i++){
     nodes[i].addEventListener('mousedown', manualswitchNodes);
 }
 
@@ -93,6 +92,7 @@ function findSort(){
         startSort();
     }
 
+    document.getElementById("radomize").disabled = true;
 
     let decision = sortSelector.value;
     switch(decision){
@@ -106,7 +106,7 @@ function findSort(){
             bubblesort();
             break;
         case "Insertion":
-            selectionSort();
+            insertionSort();
             break;
         case "Merge":
             selectionSort();
@@ -142,7 +142,7 @@ function findStep(){
                 runBubbleStep();
                 break;
             case "Insertion":
-                runSelectionSteps();
+                runInsertionStep();
                 break;
             case "Merge":
                 runSelectionSteps();
@@ -319,6 +319,7 @@ function selectionSetNextSmallest(){
 function selectionFinish(){
     setClass(nodes[(numNodes - 1)], 2, "Sorted");       //sets final array to sorted color
     clearInterval(wait);                        //prevent the loop from continuing on sort button
+    document.getElementById("radomize").disabled = false;
     done = true;                                //causes next step button to do nothing
     sortSelector.disabled = false;              //allows for the selection of new sorting types
     addStep("Node " + (numNodes) + " is now sorted");
@@ -472,7 +473,7 @@ function bubbleNextRun(){
 //if we go through the list without swapping, the list is sorted. We can trigger the "early end" event in that case.
 function bubbleEarlyEnd(){
     addStep("No Swaps were made. The List is now sorted.");
-    for(q = 0; q < bubbleLimit; q++){
+    for(let q = 0; q < bubbleLimit; q++){
         setClass(nodes[q], 2, "Sorted");//set all remaining nodes as sorted
     }
     bubbleEnd();
@@ -488,11 +489,141 @@ function bubbleLateEnd(){
 }
 
 function bubbleEnd(){
+    document.getElementById("radomize").disabled = false;
     clearInterval(wait);
     sortSelector.disabled = false;
     done = true;
 }
 
+
+
+/*
+
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+InsertionSort
+*/
+var insertionBeyond = 0;          //Index of the first untouched Node
+var insertionRunner;                //Index of the node as it's being inserted to the right place
+var insertionSwap = false;          //Whether we are swapping this step or not
+var insertionStarted = false;       //Have we started insertion sort yet?
+var insertionSwapStep = 1;
+
+
+function insertionStart(){
+    insertionStarted = true;
+    insertionSwap = false;
+    insertionBeyond = 1;
+    addStep("Node 1 is now semi-sorted.");
+    setClass(nodes[0], 2, "Sorted");    // Set Node 1 to sorted
+}
+
+
+//runs when the sort button is pressed
+function insertionSort(){
+    if(!insertionStarted){
+        insertionStart();
+    }
+
+    orderArray = getOrder();
+    wait = setInterval(insertionStep, delay);
+}
+
+
+//runs when the next step button is pressed
+function runInsertionStep(){
+    if(!insertionStarted){
+        insertionStart();
+    }else{
+        insertionStep();
+    }
+}
+
+function insertionStep(){
+    if(insertionSwap){
+        //we have hit the end or a smaller node
+        if((insertionRunner <= 0 || orderArray[insertionRunner] >= orderArray[insertionRunner - 1]) && (insertionSwapStep == 1)){  //run the final step to set the new one
+            insertionSetSorted();
+            return;
+        }
+
+        if(insertionSwapStep == 1){
+            insertionSwapNodes();
+        }else if(insertionSwapStep == 2){
+            insertionNewPrev();
+        }
+        return;
+    }
+
+
+    insertionNewRunner();
+}
+
+function insertionSetSorted(){
+    insertionSwap = false;  
+    insertionSwapStep = 1;
+    insertionBeyond++;
+    setClass(nodes[insertionRunner], 2, "Sorted");       //set this node as the sorted color now (refered to as semisorted);
+    if(insertionRunner < insertionBeyond - 1){
+        setClass(nodes[insertionRunner + 1], 2, "Sorted");   //set the old previous node as sorted
+    }
+    
+    if(insertionRunner > 0){                                 //set the previous node as sorted
+        setClass(nodes[insertionRunner - 1], 2, "Sorted");
+    }
+
+    addStep("Current Node " + (insertionRunner + 1) + " is now semi-sorted.");
+    
+    //have we have sorted the entire array
+    if(insertionBeyond == numNodes){
+        addStep("The array is now sorted.");
+        end = true;
+        clearInterval(wait);
+        sortSelector.disabled = false;
+        document.getElementById("radomize").disabled = false;
+        return;
+    }
+}
+
+function insertionSwapNodes(){
+    addStep("Current Node " + (insertionRunner + 1) + " is less than previous node " + insertionRunner +  ". Swap the two nodes.");
+    swapArray(orderArray, insertionRunner, insertionRunner - 1);
+    numSwap(insertionRunner, insertionRunner - 1);            //swap the array with the previous
+    insertionSwapStep++;
+    insertionRunner--;
+
+    if(insertionRunner == 0){
+        insertionSwapStep = 1;
+    }
+}
+
+
+function insertionNewPrev(){
+    setClass(nodes[insertionRunner + 1], 2, "Sorted");           //set the old prev as sorted
+    setClass(nodes[insertionRunner], 2, "Current");              //set the new current the correct color
+    setClass(nodes[insertionRunner-1], 2, "Special");            //set the new previous as previous color
+    insertionSwapStep = 1;
+    addStep("Set Node " + insertionRunner + " as \"prev\".");
+}
+
+function insertionNewRunner(){
+    insertionRunner = insertionBeyond;       //the next node to enter the sorted array is the first unsorted node
+    insertionSwap = true;                   //next step is to start swapping
+    setClass(nodes[insertionBeyond], 2, "Current");             //give the current node the current color
+
+    
+    setClass(nodes[insertionBeyond - 1], 2, "Special");
+    
+
+    addStep("Set Node " + (insertionRunner + 1) + " as \"current\" and Node " + (insertionRunner + 2) + " as \"prev\".");
+}
 
 //Helper Methods
 
@@ -508,14 +639,14 @@ This function switches the class of a node to a new slected one
 function setClass(node, index, newClass){
     let newClasses = [];
     let classList = node.classList;
-    for(i = 2; i >= 0; i--){
+    for(let i = 2; i >= 0; i--){
         newClasses.unshift(node.classList[i]);
         classList.remove(classList[i]);
     }
 
     newClasses[index] = newClass;
 
-    for(i = 0; i < 3; i++){
+    for(let i = 0; i < 3; i++){
         classList.add(newClasses[i]);
     }
 
@@ -554,7 +685,7 @@ This function returns the current sizes of the nodes in order
 function getOrder(){
     let order = [];         //stores the size of the nodes in order
 
-    for(i = 0; i < numNodes; i++){
+    for(let i = 0; i < numNodes; i++){
         let node = nodes[i];            //gets the first Node
         let size = node.classList[1];   //gets the class that controls the size
         let stringNum = size.substring(1);      //removes the s at the begining of the class name to get a number
@@ -622,10 +753,11 @@ function resetArena(){
 function resetStarted(){
     selectionStarted = false;
     bubbleStarted = false;
+    insertionStarted = false;
 }
 
 function resetColor(){
-    for(z = 0; z < numNodes; z++){
+    for(let z = 0; z < numNodes; z++){
         setClass(nodes[z], 2, "Default");
     }
 }
