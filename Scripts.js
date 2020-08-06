@@ -92,6 +92,9 @@ function findSort(){
         startSort();
     }
 
+    if(done)
+        return;
+
     document.getElementById("radomize").disabled = true;
 
     let decision = sortSelector.value;
@@ -584,6 +587,7 @@ function insertionSetSorted(){
     //have we have sorted the entire array
     if(insertionBeyond == numNodes){
         addStep("The array is now sorted.");
+        done = true;
         end = true;
         clearInterval(wait);
         sortSelector.disabled = false;
