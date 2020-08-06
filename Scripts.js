@@ -152,7 +152,7 @@ function findStep(){
                 runSelectionSteps();
                 break;
             case "Bogo":
-                runSelectionSteps();
+                runBogoStep();
                 break;
         }
     }
@@ -606,18 +606,31 @@ function insertionNewRunner(){
 //BogoSort
 //BogoSort
 
-var bogoIsSorted;
-var bogoIndex;
+var bogoIsSorted;       //Boolean if this is sorted or not. Always Assumed to be true
+var bogoIndex;          //which node are we comparing to the next?
+var bogoStarted = false;
 
 function startBogo(){
     bogoIsSorted = true;            //start by assuming the array is sorted
     bogoIndex = 0;                  //begin the array at one   
     orderArray = getOrder();        //get the array to match the nodes
     addStep("Set Node 1 as \"current\" and Node 2 as \"next\"");
+    bogoStarted = true;
+}
+
+function runBogoStep(){
+    if(!bogoStarted){
+        startBogo();
+    }
+
+    bogoSteps();
 }
 
 function bogoSort(){
-    startBogo();
+    if(!bogoStarted){
+        startBogo();
+    }
+
     wait = setInterval(bogoSteps, delay);
 }
 
@@ -843,6 +856,7 @@ function resetStarted(){
     selectionStarted = false;
     bubbleStarted = false;
     insertionStarted = false;
+    bogoStarted = false;
 }
 
 function resetColor(){
