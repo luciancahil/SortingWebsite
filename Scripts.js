@@ -322,7 +322,7 @@ function selectionSetNextSmallest(){
 function selectionFinish(){
     setClass(nodes[(numNodes - 1)], 2, "Sorted");       //sets final array to sorted color
     clearInterval(wait);                        //prevent the loop from continuing on sort button
-    document.getElementById("radomize").disabled = false;
+    document.getElementById("radomize").disabled = false;       //enables the randomize button
     done = true;                                //causes next step button to do nothing
     sortSelector.disabled = false;              //allows for the selection of new sorting types
     addStep("Node " + (numNodes) + " is now sorted");
@@ -333,9 +333,6 @@ function selectionFinish(){
 /*
 BubbleSort
 The largest remaining Node "bubble" to the top, until each node is done
-
-
-
 */
 var bubbleLimit = numNodes;         //stores the limit of how many nodes we need to check on each run
 var bubbleIndex = 0;                //stores the index Node's index
@@ -344,7 +341,6 @@ var bubbleStarted = false;          //Have the bubble sort variables been set to
 var bubbleIsSorted = true;          //Start by assuming each iteration that the list is sorted. If a switch is made, set this to false
 var bubbleSwapStep = 1;                   //Swaping takes several steps. This stores which one we are on.
 var bubbleEndStep = 1;                  //Once a node reaches the end, several steps must be taken
-
 function bubbleStart(){
     swapStep = 1
     bubbleLimit = numNodes;
@@ -353,17 +349,13 @@ function bubbleStart(){
     bubbleIsSorted = true;
     addStep("Set node 1 as current and node 2 as \"next\"");
 }
-
-
 //this function fires when the "Next Step" button is pressed
 function runBubbleStep(){
     if(!bubbleStarted){
         bubbleStart();
     }
-
     bubbleStep();
 }
-
 //to be run when the button "sort" is pressed
 function bubblesort(){
     if(!bubbleStarted){
@@ -372,15 +364,12 @@ function bubblesort(){
     
     wait =  setInterval(bubbleStep, delay);
 }
-
-
 function bubbleStep(){
     //Bubble sort is done
     if(bubbleLimit == 1){
         bubbleLateEnd();
         return;
     }
-
     //switch two Nodes
     if(bubbleSwap){
         if(bubbleSwapStep == 1){
@@ -402,8 +391,6 @@ function bubbleStep(){
         }
     }
 }
-
-
 //swaps two nodes
 function bubbleSwapNodes(){
     addStep("Current Node " + (bubbleIndex + 1) + " is larger than next Node " + (bubbleIndex + 2) + ". Switch the two nodes.");
@@ -412,14 +399,11 @@ function bubbleSwapNodes(){
     bubbleIndex++;
     bubbleIsSorted = false;     //If a single switch occurs, that means the list is not sorted
     bubbleSwapStep++;
-
     if(bubbleIndex >= bubbleLimit - 1){        // do not set the next node if we are on the last node
         bubbleSwap = false;
         bubbleSwapStep = 1;
     }
 }
-
-
 //changes color of the next node if it exists
 function bubbleSetNext(){
     addStep("Set Node " + (bubbleIndex + 2) + " as \"next\".");
@@ -428,41 +412,32 @@ function bubbleSetNext(){
     bubbleSwapStep = 1;
     bubbleSwap = false;
 }
-
 //moves the index and current nodes up, then compares them
 function bubbleCompareNodes(){
     addStep("Compare current Node " + (bubbleIndex + 1) + " next Node " + (bubbleIndex + 2) + ".");
     if(bubbleIndex > 0){
         setClass(nodes[bubbleIndex - 1], 2, "Default"); 
     }
-
     setClass(nodes[bubbleIndex], 2, "Current");             
     setClass(nodes[bubbleIndex + 1], 2, "Index");
     if(orderArray[bubbleIndex] > orderArray[bubbleIndex + 1]){
         bubbleSwap = true;
         return;
     }
-
     bubbleIndex++;
 }
-
-
 //changing the colors of the largest unsorted node once it's at the end
 function bubbleSetSorted(){
     addStep("Node " + (bubbleIndex + 1) +  " is now sorted.");
-
     if(bubbleIsSorted){
         bubbleEarlyEnd();
         return;
     }
-
     setClass(nodes[bubbleIndex], 2, "Sorted");                      //set node to sorted color
     setClass(nodes[bubbleIndex - 1], 2, "Default");                      //set previous node to default
     bubbleEndStep++;
     bubbleLimit--;
 }
-
-
 //Sets the index and next nodes for the next run
 function bubbleNextRun(){
     addStep("Set node 1 as current and node 2 as \"next\"");
@@ -472,27 +447,23 @@ function bubbleNextRun(){
     bubbleIsSorted = true;
     bubbleEndStep = 1;
 }
-
 //if we go through the list without swapping, the list is sorted. We can trigger the "early end" event in that case.
 function bubbleEarlyEnd(){
     addStep("No Swaps were made. The List is now sorted.");
-    for(let q = 0; q < bubbleLimit; q++){
+    for(q = 0; q < bubbleLimit; q++){
         setClass(nodes[q], 2, "Sorted");//set all remaining nodes as sorted
     }
     bubbleEnd();
 }
-
-
 //We have sorted every node from 2- numNodes, so the list now must be sorted
 function bubbleLateEnd(){
     bubbleEnd();
     addStep("The list is now sorted.");
     setClass(nodes[0], 2, "Sorted");            //set the first node to be the sorted color
+    document.getElementById("radomize").disabled = false;
     return;
 }
-
 function bubbleEnd(){
-    document.getElementById("radomize").disabled = false;
     clearInterval(wait);
     sortSelector.disabled = false;
     done = true;
