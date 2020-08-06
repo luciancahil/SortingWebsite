@@ -118,7 +118,7 @@ function findSort(){
             selectionSort();
             break;
         case "Bogo":
-            selectionSort();
+            BogoSort();
             break;
     }
 
@@ -559,7 +559,6 @@ function insertionSetSorted(){
     if(insertionBeyond == numNodes){
         addStep("The array is now sorted.");
         done = true;
-        end = true;
         clearInterval(wait);
         sortSelector.disabled = false;
         document.getElementById("radomize").disabled = false;
@@ -600,6 +599,70 @@ function insertionNewRunner(){
     addStep("Set Node " + (insertionRunner + 1) + " as \"current\" and Node " + (insertionRunner + 2) + " as \"prev\".");
 }
 
+//BogoSort
+//BogoSort
+//BogoSort
+//BogoSort
+//BogoSort
+//BogoSort
+//BogoSort
+//BogoSort
+
+var bogoIsSorted;
+
+function startBogo(){
+    bogoIsSorted = false;
+}
+
+function BogoSort(){
+    let numTries = 0;
+    startBogo();
+
+
+    while(!bogoIsSorted){
+        
+        orderArray = getOrder();
+        //alert(orderArray);
+        bogoIsSorted = true;
+        for(i = 0; i < numNodes - 1; i++){
+            if(orderArray[i] > orderArray[i + 1]){
+                //The array is not in order
+                bogoIsSorted = false;
+
+                break;
+            }
+        }
+
+        if(bogoIsSorted){
+            done = true;
+            clearInterval(wait);
+            sortSelector.disabled = false;
+            document.getElementById("radomize").disabled = false;
+            alert(numTries);
+            return;
+        }
+        
+        numTries++;
+        randomize();
+
+
+    }
+}
+
+//Helper Methods
+//Helper Methods
+//Helper Methods
+//Helper Methods
+//Helper Methods
+
+//Helper Methods
+//Helper Methods
+
+//Helper Methods
+//Helper Methods
+//Helper Methods
+//Helper Methods
+//Helper Methods
 //Helper Methods
 
 
