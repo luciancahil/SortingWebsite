@@ -23,11 +23,11 @@ function randomize(){
     let classes = [];           //stores the classes in order for the first node to the last
     resetArena();
     
-    for(i = 0; i < numNodes; i++){        //we have now created a list of numbers from 0 to numNodes -1 inclusive
+    for(let i = 0; i < numNodes; i++){        //we have now created a list of numbers from 0 to numNodes -1 inclusive
         intList.push(i);
     }
 
-    for(i = numNodes - 1; i >= 0; i--){
+    for(let i = numNodes - 1; i >= 0; i--){
         let index = Math.floor(Math.random() * i); //chooses a random number between 0 and i
         let randomNumber = intList[index];                  //selects the number
         let size = nodes[randomNumber].classList[1];    //selects the size from the chosen element
@@ -39,7 +39,7 @@ function randomize(){
 
     //classes array now contains size classes in random order.
 
-    for(j = numNodes - 1; j >= 0; j--){
+    for(let j = numNodes - 1; j >= 0; j--){
         let node = nodes[j];
         let size = classes[j];
         setClass(node, 1, size);
@@ -52,7 +52,7 @@ function randomize(){
 var selected = false;       //stores whether or not a node is currently selected
 var selectedNode;           //stores the node currently selected
 
-for(i = 0; i < numNodes; i++){
+for(let i = 0; i < numNodes; i++){
     nodes[i].addEventListener('mousedown', manualswitchNodes);
 }
 
@@ -471,7 +471,7 @@ function bubbleNextRun(){
 //if we go through the list without swapping, the list is sorted. We can trigger the "early end" event in that case.
 function bubbleEarlyEnd(){
     addStep("No Swaps were made. The List is now sorted.");
-    for(q = 0; q < bubbleLimit; q++){
+    for(let q = 0; q < bubbleLimit; q++){
         setClass(nodes[q], 2, "Sorted");//set all remaining nodes as sorted
     }
     bubbleEnd();
@@ -507,24 +507,54 @@ InsertionSort
 InsertionSort
 InsertionSort
 */
-
+var insertionBeyond = 0;          //Index of the first untouched Node
+var insertionGuest;                //Index of the node as it's being inserted to the right place
+var insertionSwap = false;          //Whether we are swapping this step or not
 
 
 function insertionSort(){
     orderArray = getOrder();
+    wait = setInterval(insertionStep, delay);
+    /*
     alert(orderArray);
-    for(q = 0; q < numNodes; q++){
-        let z = q;
-        while(z > 0 && orderArray[z] < orderArray[z - 1]){
-            swapArray(orderArray, z, z - 1);
-            numSwap(z, z - 1);
-            z--;
+    for(insertionBeyond = 0; insertionBeyond < numNodes; insertionBeyond++){
+        let insertionDeeper = insertionBeyond;
+        while(insertionDeeper > 0 && orderArray[insertionDeeper] < orderArray[insertionDeeper - 1]){
+            swapArray(orderArray, insertionDeeper, insertionDeeper - 1);
+            numSwap(insertionDeeper, insertionDeeper - 1);
+            insertionDeeper--;
         }
     }
-    alert(orderArray);
+    alert(orderArray);*/
 }
 
+function insertionStep(){
+    if(insertionSwap){
+        //we have hit the end or a smaller node
+        if((insertionGuest <= 0 || orderArray[insertionGuest] >= orderArray[insertionGuest - 1])){
+            insertionSwap = false;  
+            insertionBeyond++;
+            return;
+        }
 
+        swapArray(orderArray, insertionGuest, insertionGuest - 1);
+        numSwap(insertionGuest, insertionGuest - 1);
+        insertionGuest--;
+        return;
+        
+    }
+
+
+    if(insertionBeyond == numNodes){
+        end = true;
+        clearInterval(wait);
+        return;
+    }
+
+    insertionGuest = insertionBeyond;
+    insertionSwap = true;
+
+}
 
 
 
@@ -544,14 +574,14 @@ This function switches the class of a node to a new slected one
 function setClass(node, index, newClass){
     let newClasses = [];
     let classList = node.classList;
-    for(i = 2; i >= 0; i--){
+    for(let i = 2; i >= 0; i--){
         newClasses.unshift(node.classList[i]);
         classList.remove(classList[i]);
     }
 
     newClasses[index] = newClass;
 
-    for(i = 0; i < 3; i++){
+    for(let i = 0; i < 3; i++){
         classList.add(newClasses[i]);
     }
 
@@ -590,7 +620,7 @@ This function returns the current sizes of the nodes in order
 function getOrder(){
     let order = [];         //stores the size of the nodes in order
 
-    for(i = 0; i < numNodes; i++){
+    for(let i = 0; i < numNodes; i++){
         let node = nodes[i];            //gets the first Node
         let size = node.classList[1];   //gets the class that controls the size
         let stringNum = size.substring(1);      //removes the s at the begining of the class name to get a number
@@ -661,7 +691,7 @@ function resetStarted(){
 }
 
 function resetColor(){
-    for(z = 0; z < numNodes; z++){
+    for(let z = 0; z < numNodes; z++){
         setClass(nodes[z], 2, "Default");
     }
 }
