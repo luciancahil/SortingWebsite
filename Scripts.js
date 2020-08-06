@@ -44,8 +44,6 @@ function randomize(){
         let size = classes[j];
         setClass(node, 1, size);
     }
-
-
 }
 
 //Allows two Nodes to Be Swapped when clicked
@@ -118,7 +116,7 @@ function findSort(){
             selectionSort();
             break;
         case "Bogo":
-            BogoSort();
+            bogoSort();
             break;
     }
 
@@ -609,43 +607,96 @@ function insertionNewRunner(){
 //BogoSort
 
 var bogoIsSorted;
+var bogoIndex;
 
 function startBogo(){
-    bogoIsSorted = false;
+    bogoIsSorted = true;            //start by assuming the array is sorted
+    bogoIndex = 0;                  //begin the array at one   
+    orderArray = getOrder();        //get the array to match the nodes
+    addStep("Set Node 1 as \"current\" and Node 2 as \"next\"");
 }
 
-function BogoSort(){
-    let numTries = 0;
+function bogoSort(){
     startBogo();
+    wait = setInterval(bogoSteps, delay);
+}
+
+function bogoSteps(){
+    //Compare Nodes
+    if(bogoIsSorted && bogoIndex < numNodes - 1){
+        bogoCompare();
+        return;
+    }
+
+    //we finished the iteration and found no problems. The list is sorted
+    if(bogoIsSorted){
+        bogoFinish();
+        return;
+    }
+    
+    //We found irregularities
+    addStep("The List is not sorted. Shuffle the list");
+    bogoRandomize();
+    bogoIsSorted = true;
+    bogoIndex = 0;
+    orderArray = getOrder();  
+}
+
+function bogoCompare(){
+    setClass(nodes[bogoIndex], 2, "Current");           //set the current node to current color
+    setClass(nodes[bogoIndex + 1], 2, "Special");       //set the next node as the next color
+
+    if(bogoIndex > 0){
+        setClass(nodes[bogoIndex - 1], 2, "Sorted");   //set the previous node to the default color
+    }
+
+    addStep("Compare current Node " + (bogoIndex + 1) + " to next Node " + (bogoIndex + 2) + ".");
+    if(orderArray[bogoIndex] > orderArray[bogoIndex + 1]){
+        //The array is not in order
+        bogoIsSorted = false;
+    }
+    bogoIndex++;
+}
+
+function bogoFinish(){
+    setClass(nodes[numNodes - 1], 2, "Sorted");     //Set the last two nodes to be the sorted color
+    setClass(nodes[numNodes - 2], 2, "Sorted");     //
+    addStep("Nothing is out of order. The list is now sorted");
+    done = true;
+    clearInterval(wait);
+    sortSelector.disabled = false;
+    document.getElementById("radomize").disabled = false;
+}
 
 
-    while(!bogoIsSorted){
+function bogoRandomize(){
+    let intList = [];           //stores intergers from - to numNodes -1
+    let classes = [];           //stores the classes in order for the first node to the last
+    
+    for(let q = 0; q <= bogoIndex + 1; q++){
+        setClass(nodes[q], 2, "Default");       //Set all nodes to the default color
+    }
+    
+    for(let i = 0; i < numNodes; i++){        //we have now created a list of numbers from 0 to numNodes -1 inclusive
+        intList.push(i);
+    }
+
+    for(let i = numNodes - 1; i >= 0; i--){
+        let index = Math.floor(Math.random() * i); //chooses a random number between 0 and i
+        let randomNumber = intList[index];                  //selects the number
+        let size = nodes[randomNumber].classList[1];    //selects the size from the chosen element
+        classes.push(size);     
+        intList[index] = intList[i];                //moves the last elment into the spot of the element just chosen
         
-        orderArray = getOrder();
-        //alert(orderArray);
-        bogoIsSorted = true;
-        for(i = 0; i < numNodes - 1; i++){
-            if(orderArray[i] > orderArray[i + 1]){
-                //The array is not in order
-                bogoIsSorted = false;
+    } 
+    
 
-                break;
-            }
-        }
+    //classes array now contains size classes in random order.
 
-        if(bogoIsSorted){
-            done = true;
-            clearInterval(wait);
-            sortSelector.disabled = false;
-            document.getElementById("radomize").disabled = false;
-            alert(numTries);
-            return;
-        }
-        
-        numTries++;
-        randomize();
-
-
+    for(let j = numNodes - 1; j >= 0; j--){
+        let node = nodes[j];
+        let size = classes[j];
+        setClass(node, 1, size);
     }
 }
 
