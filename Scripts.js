@@ -176,7 +176,7 @@ function startSelection(){
     selectionCurrent = 0;            //reset the number of sorted so that we can use it again without refreshing
     selectionIndex = 1;
     selectionSmallest = 0;
-    addStep("Node 1 is the first unsorted Array. Set Node 1 to \"smallest\"");
+    addStep("Node 1 is the first unsorted Array. Set Node 1 to \"smallest\".");
     setClass(nodes[0], 2, "Combined");
     foundNewSorted = false;
 }
@@ -235,7 +235,23 @@ function selectionStep(){
 }
 
 
-//The following are all methods called by the selection step method
+/*
+Selection sort works by iterating through each element, and swaping the smallest element with the first element that isn't yet sorted.
+
+Classifications:
+Current: "Current"      The first unsorted Node
+Smallest" "Special"     The smallest unsorted node found so far
+Index: "Index"          The Node we are comparing with the Node set to smallest
+Sorted: "Sorted"        Nodes at the begining of the list we know are sorted
+
+First, we set the first node as both current and smallest. We then iterate through each node in the list. If we find a smaller Node, 
+than the "smallest" node, we set that to "smallest".
+
+At the end, switch the current Node and the smallet Node
+
+Repeat for each Node
+
+*/
 
 //Changes the index to match the smallest function
 function selectionChangeSmallest(){
@@ -331,8 +347,23 @@ function selectionFinish(){
 /*
 BubbleSort
 The largest remaining Node "bubble" to the top, until each node is done
+
+Classifications and their classes:
+Current = "Current".            The Current NOde
+Next = "Special"                The Node we are comparing current to, and the node immidealty after current
+Sorted = "Sorted"               Sorted Nodes at the end of the lsit
+
+We will Start by setting Node "1" as Current and Node 2. as Next.
+
+We will increment both current and next until we hit the end of the unsorted Nodes, switching the nodes if Current is larger than Next.
+
+Reset Node 1 as Current and Node 2 as Next
+
+Once Each Node has been moved to the end, or we go through a run without swapping any noes, the list is sorted.
 */
-var bubbleLimit = numNodes;         //stores the limit of how many nodes we need to check on each run
+
+
+var bubbleLimit = numNodes;         //stores the limit of how many nodes we need to check on each run (how many unsorted Nodes)
 var bubbleIndex = 0;                //stores the index Node's index
 var bubbleSwap = false;             //does the next step involve switching?
 var bubbleStarted = false;          //Have the bubble sort variables been set to their needs?
@@ -341,8 +372,7 @@ var bubbleEndStep = 1;                  //Once a node reaches the end, several s
 
 
 function bubbleStart(){
-    swapStep = 1
-    bubbleLimit = numNodes;
+    bubbleLimit = numNodes;             
     bubbleIndex = 0;
     bubbleStarted = true;
     bubbleIsSorted = true;
@@ -461,18 +491,27 @@ function bubbleEnd(){
 
 
 /*
+Insertion sort works by taking an already sorted array at the start (An array of One is sorted),
+and swapping the next element with the next largest sorted element until the next element is in the proper order. 
+Repeat for each element.
 
-InsertionSort
-InsertionSort
-InsertionSort
-InsertionSort
-InsertionSort
-InsertionSort
-InsertionSort
-InsertionSort
-InsertionSort
-InsertionSort
+Classifications: Class
+
+Semi-Sorted: "Sorted". Nodes at the begining of the list are sorted compared to each other. 
+Current: "Current" The Node currently we are trying to insert into the semi-sorted list
+
+We start by setting the first node as semi-sorted, as a list with just one node is sorted.
+
+Then we set the second node as Current, and the first node as prev. We try to insert it into the semi-sorted list, then we repeat until
+We've done it for every lsit
+
+Each time we iterate through the lists and take the first unsorted Node, swapping it with the previous 
+semi-sorted Node until we hit the begining of the list or a node smaller than it. The current Node is now semi-sorted.
+
+Repeat for each Node.
 */
+
+
 var insertionBeyond = 0;          //Index of the first untouched Node
 var insertionRunner;                //Index of the node as it's being inserted to the right place
 var insertionSwap = false;          //Whether we are swapping this step or not
