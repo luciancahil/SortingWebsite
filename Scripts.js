@@ -843,8 +843,22 @@ function setMiniQuicksort(){
     quickRightIndex = endStart[1];
     quickLargerIndex = endStart[1] - 1;         //set the end of the semisort
     quickPivot = orderArray[quickLargerIndex];      //Set the pivot as the last index
+
+
+    //there is only one element in this subarray. Just set it to sorted
+    if(quickSmallerIndex == quickLargerIndex){
+        addStep("Node " + (quickLargerIndex + 1) + " is now sorted");
+        setClass(nodes[quickLargerIndex], 2, "Sorted");
+
+        //The stack is empty. No more semisorts are needed. Check if the list is sorted
+        if(quickEndsArray.length == 0){
+            quickSortEnd();
+    }
+
+        return; 
+    }
     
-    addStep("Set Node " + (quickLargerIndex + 1) + " as \"pivot\" and Nodes " + (quickSmallerIndex + 1) + " to " + (quickLargerIndex)  + " as \"relevant\"");
+    addStep("Set Node " + (quickLargerIndex + 1) + " as \"pivot\" and Nodes " + (quickSmallerIndex + 1) + " to " + (quickLargerIndex)  + " as \"relevant\".");
     setClass(nodes[quickLargerIndex], 2, "Current");        //Set the last node of the sublist as the pivot
 
     for(let q = quickSmallerIndex; q < quickLargerIndex; q++){      //set every other Node of the sublist as relevant
@@ -859,7 +873,7 @@ function setMiniQuicksort(){
 function movePivot(){
     numSwap(quickRightIndex - 1, quickLargerIndex);                         //swap the pivot (last item in the sublist) with the first larger element
     swapArray(orderArray, quickRightIndex - 1, quickLargerIndex);
-    addStep("The Partitioning is done. Swap pivot node " + numNodes + " with first larger node " + (quickLargerIndex + 1) + " and set the new Node " + (quickLargerIndex + 1) + " to \"sorted\".");
+    addStep("The Partitioning is done. Swap pivot node " + quickRightIndex + " with first larger node " + (quickLargerIndex + 1) + ". The new Node " + (quickLargerIndex + 1) + " is now sorted.");
     setClass(nodes[quickLargerIndex], 2, "Sorted");     //Set the pivot as sorted in it's new position
 
     //add the coordinates for a new semisort on the right, from the one after the pivot to the end if any nodes ended up on the right
@@ -898,19 +912,19 @@ function quickPartition(){
     if(partitionStep == 1){
         partitionStep++;
         setClass(nodes[quickLargerIndex - 1], 2, "Index");
-        addStep("Compare Index Node " + quickLargerIndex + " to pivot node " + (numNodes - 1) + ".");
+        addStep("Compare Index Node " + quickLargerIndex + " to pivot node " + (quickRightIndex) + ".");
         return;
     }
 
     //put the index in the correct pile
     if(orderArray[quickLargerIndex - 1] < quickPivot){      //The Node is smaller than the pivot
         numSwap(quickLargerIndex - 1, quickSmallerIndex);               //swap the smaller array with the first unpartitioned node
-        addStep("Index Node " + quickLargerIndex + " is smaller than pivot node " + (numNodes)+ ". Put the index node at the start and set it to \"smaller\"");
+        addStep("Index Node " + quickLargerIndex + " is smaller than pivot node " + (numNodes)+ ". Put the index node at the start and set it to \"smaller\".");
         setClass(nodes[quickSmallerIndex], 2, "Combined");          //set Smaller Node to the smaller color
         swapArray(orderArray, quickSmallerIndex, quickLargerIndex - 1);   //Sets the node the the begining of the list
         quickSmallerIndex++;
     }else{ //This node is larger than or equal to the pivot
-        addStep("Index Node " + quickLargerIndex + " is larger than pivot node " + (numNodes)+ ". Set the node to \"larger\"");
+        addStep("Index Node " + quickLargerIndex + " is larger than pivot node " + (numNodes)+ ". Set the index node to \"larger\".");
         setClass(nodes[quickLargerIndex - 1], 2, "Special");        //set larger node to the larger color
         quickLargerIndex--;
     }
