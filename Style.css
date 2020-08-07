@@ -198,6 +198,9 @@ body #Steps {
     background-color: purple;
 }
 
+.branch .Relevant{
+    background-color: orange;
+}
 
 /*Colors of the Explanation Text*/
 #writeup .Default{
@@ -226,6 +229,10 @@ body #Steps {
 
 #writeup .Combined{
     color: purple;
+}
+
+#writeup .Relevant{
+    color: orange;
 }
 
 
