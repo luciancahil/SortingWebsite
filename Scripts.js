@@ -82,6 +82,11 @@ function startSort(){
     orderArray = getOrder();                //sets selectionOrder to be the current order of the nodes
     started = true;
     stepNum = 1;           //reset the number of steps
+
+    if(selected){setClass(selectedNode, 2, "Default");}         //if a node is selected for manual switching, set it to default
+
+    selected = false;      //remove the selected Section for the Node
+    
 }
 
 //use of the sort button
