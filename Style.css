@@ -75,6 +75,10 @@ body #Steps {
     flex-direction: column;
 }
 
+#buttons #delayInput{
+    width: 14%;
+}
+
 #buttons button {
     margin-bottom: 10px;
 }
@@ -194,6 +198,35 @@ body #Steps {
     background-color: purple;
 }
 
+
+/*Colors of the Explanation Text*/
+#writeup .Default{
+    color: pink;
+}
+
+#writeup .Selected{
+    color: green;
+}
+
+#writeup .Index{
+    color: yellow;
+}
+
+#writeup .Sorted{
+    color: brown;
+}
+
+#writeup .Current{
+    color: red;
+}
+
+#writeup .Special{
+    color: blue;
+}
+
+#writeup .Combined{
+    color: purple;
+}
 
 
 

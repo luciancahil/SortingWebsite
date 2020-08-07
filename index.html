@@ -31,7 +31,7 @@
                     <div id = "Steps"><div id = "StepWrapper"><u>Steps</u></div></div>
                 </div>
                 <div id = "buttons">
-                    <input id = "delayInput" type = "number" placeholder = "delay (ms)" style="width: 14%;">
+                    <input id = "delayInput" type = "number" placeholder = "delay (ms)">
                     <button id = "nextStep" onClick = "findStep()">Next Step</button>
                     <button id = "radomize" onclick="randomize()">Randomize</button>
                     <button id = "sortAll" onClick = "findSort()">Sort</button>
@@ -49,11 +49,14 @@
                     <h1>Explanation</h1>
                     <div id= "writeup">
                         <p>Selection sort works by iterating through each element, and swaping the smallest element with the first element that isn't yet sorted.</p>
+                        <p>We start by Setting the first node as both the "current" and "smallest" Node. We then iterate through each node after it. 
+                         Every time we find a node smaller than the "smallest" Node, we set that Node as the new "Smallest" Node. 
+                          After iterating through each Element,we switch the "current" and "smallest" node. Repeat for each Node after the first.</p>
                         <p><Strong>Color Key:</Strong></p>
-                        <p style = "color: blue">Smallest</p>
-                        <p style = "color: red">Current</p>
-                        <p style = "color: yellow">Index</p>
-                        <p style = "color: brown">Sorted</p>
+                        <p class = "Special">Smallest</p>
+                        <p class = "Current">Current</p>
+                        <p class = "Index">Index</p>
+                        <p class = "Sorted">Sorted</p>
                     </div>
                 </div>
         </div>

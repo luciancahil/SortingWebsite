@@ -405,7 +405,7 @@ function bubbleSwapNodes(){
 //changes color of the next node if it exists
 function bubbleSetNext(){
     addStep("Set Node " + (bubbleIndex + 2) + " as \"next\".");
-    setClass(nodes[bubbleIndex + 1], 2, "Index");       //sets the following index as the "next" color
+    setClass(nodes[bubbleIndex + 1], 2, "Special");       //sets the following index as the "next" color
     setClass(nodes[bubbleIndex - 1], 2, "Default");     //sets the previous node as previous
     bubbleSwapStep = 1;
     bubbleSwap = false;
@@ -417,7 +417,7 @@ function bubbleCompareNodes(){
         setClass(nodes[bubbleIndex - 1], 2, "Default"); 
     }
     setClass(nodes[bubbleIndex], 2, "Current");             
-    setClass(nodes[bubbleIndex + 1], 2, "Index");
+    setClass(nodes[bubbleIndex + 1], 2, "Special");
     if(orderArray[bubbleIndex] > orderArray[bubbleIndex + 1]){
         bubbleSwap = true;
         return;
@@ -440,7 +440,7 @@ function bubbleSetSorted(){
 function bubbleNextRun(){
     addStep("Set node 1 as current and node 2 as \"next\"");
     setClass(nodes[0], 2, "Current");             
-    setClass(nodes[1], 2, "Index");
+    setClass(nodes[1], 2, "Special");
     bubbleIndex = 0;
     bubbleIsSorted = true;
     bubbleEndStep = 1;
@@ -462,6 +462,7 @@ function bubbleLateEnd(){
     return;
 }
 function bubbleEnd(){
+    document.getElementById("radomize").disabled = false;
     clearInterval(wait);
     sortSelector.disabled = false;
     done = true;
@@ -887,10 +888,10 @@ function resetSteps(){
 //Changes the explanation text to match the sorting type
 const explaination = document.getElementById("writeup");        //The Text at the bottom of the page explaing the sorting method
 
-const SelectionExplanation = "<p>Selection sort works by iterating through each element, and swaping the smallest element with the first element that isn't yet sorted.</p>"
+const SelectionExplanation = "<p>Selection sort works by iterating through each element, and swaping the smallest element with the first element that isn't yet sorted.</p> <p>We start by Setting the first node as both the \"current\" and \"smallest\" Node. We then iterate through each node after it. Every time we find a node smaller than the \"smallest\" Node, we set that Node as the new \"Smallest\" Node. After iterating through each Element,we switch the \"current\" and \"smallest\" node. Repeat for each Node after the first.</p> <p><Strong>Color Key:</Strong></p> <p class = \"Special\">Smallest</p> <p class = \"Current\">Current</p> <p class = \"Index\">Index</p> <p class = \"Sorted\">Sorted</p>";
 const QuickExplanation = "<p>Quick sort works by choosing the middle element, and then dividing each element into 2 groups: one larger than the chosen element, and one smaller. Repeat for each subgroup until each subgroup is only one elment large, and we have a sorted list</p>"
-const BubbleExplanation = "<p>Bubble sort works by setting the first element as the main element and comparing it to the next. If the element is larger than the next, switch. Otherwise, set the next element as the main elment. Repeat until the main elment is at the end of the list (the largest is now the larges). Repeat for each element</p>";
-const InsertionExplation = "<p>Insertion sort works by taking an already sorted array at the start (An array of One is sorted), and swapping the next element with the next largest sorted element until the next element is in the proper order. Repeat for each element</p>"
+const BubbleExplanation = "<p>Bubble sort works by setting the first element as the main element and comparing it to the next. If the element is larger than the next, switch. Otherwise, set the next element as the main elment. Repeat until the main elment is at the end of the list (the largest is now the larges). Repeat for each element</p>  <p>We start by setting the first node as \"Current\" and the second Node as \"Next\". If \"Next\" is smaller than \"Current\", we swap the two. Then set 2 as \"Current\" and 3 as \"Next\". Repeat Until \"Next\" has reached the end of the unsorted nodes. That Node is now sorted. Repeat the process until each node has been moved to it's proper place, or we iterate through the list without any swaps.<p/>  <p><strong>Color Key:</strong></p> <p class = \"Current\">Current</p> <p class = \"Special\">Next</p> <p class = \"Sorted\">Sorted</p>";
+const InsertionExplation = "<p>Insertion sort works by taking an already sorted array at the start (An array of One is sorted), and swapping the next element with the next largest sorted element until the next element is in the proper order. Repeat for each element.</p> <p>We start by setting the first Node as \"semi-sorted\". We then set the second Node as \"Current\" and the first node as \"prev\". If \"current\" is smaller than \"prev\", then switch. Then, set the third node as \"current\" and the second node as prev, and so on. Each time, swap \"current\" and \"prev\" until we either reach the start of the list or a smaller node in the semi sorted lsit. Then, that node is also sem-sorted. </p> <p><Strong>Color Key:</Strong></p> <p class = \"Special\">Prev</p> <p class = \"Current\">Current</p> <p class = \"Sorted\">Semi-Sorted</p>"
 const MergeExplanation = "<p>Merge sort works by breaking each half of the list into a sorted array. We then add the smallest element from each subarray into a new array, repeating until both subarrays are exhausted. We then copy each element in order from the new array to the old array.</p>";
 const HeapExplanation = "<p>Heap sort works by converting the list into a maximum heap. We then swap the first (largest) element with the last, remove the last element from the heap into the next spot of the sorted array, and then sink the new first element of the heap until we have a valid heap again. Repeat until the heap is empty.</p>";
 const BogoExplanation = "<p>You're crazy</p>";
