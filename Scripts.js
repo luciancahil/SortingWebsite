@@ -763,6 +763,8 @@ Quicksort
 Quicksort
 Quicksort
 Quicksort
+
+Pivot = "current"
 */
 
 
@@ -772,7 +774,7 @@ var quickStart;              //Stores the begining of this particular quick sort
 var quickEnd;                //One above the end of the particular quicksort
 var quickStarted = false;    //Has quicksort started?
 var quickPivot;                 //stores the pivot height
-
+var donePartition;
 var partitionStep;          //partitioning takes 2 steps each
 
 var quickEndsArray = [];            //Since I can't use recursion, I'll have a stack that stores each end of each sub-quicksort
@@ -784,12 +786,13 @@ function quickSetup(){
     quickEnd = numNodes;
     let endStart = [0, numNodes];
     quickEndsArray.push(endStart);
-    quickLargerIndex = numNodes - 1;
+    //quickLargerIndex = numNodes - 1;
     orderArray = getOrder();
     quickPivot = orderArray[numNodes - 1];
-    setClass(nodes[numNodes - 1], 2, "Current");    //Set the last node to the current color to represent the pivot
-    addStep("Set Node " + (numNodes) + " as the \"pivot\"");
-    quickSmallerIndex = 0;
+    //setClass(nodes[numNodes - 1], 2, "Current");    //Set the last node to the current color to represent the pivot
+    //addStep("Set Node " + (numNodes) + " as the \"pivot\"");
+    //quickSmallerIndex = 0;
+    donePartition = true;
     quickStarted = true;
 }
 
@@ -814,6 +817,30 @@ function quicksort(){
 }
 
 function tempQuickStep(){
+
+    //We must Set Nodes to relevant and get the pivot
+    if(donePartition){
+        setMiniQuicksort();
+        /*
+        let endStart = quickEndsArray.pop();
+        quickSmallerIndex = endStart[0];        //set the start of the semisort
+        quickLargerIndex = endStart[1] - 1;         //set the end of the semisort
+        
+        addStep("Set Node " + (quickLargerIndex + 1) + " as \"pivot\" and Nodes " + (quickSmallerIndex + 1) + " to " + (quickLargerIndex)  + " as \"relevant\"");
+        setClass(nodes[quickLargerIndex], 2, "Current");
+        for(let q = quickSmallerIndex; q < quickLargerIndex; q++){
+            setClass(nodes[q], 2, "Relevant");
+        }
+
+
+        donePartition = false;
+        return;*/
+    }
+
+
+
+
+    /*
     if(quickLargerIndex == quickSmallerIndex){
         numSwap(numNodes - 1, quickLargerIndex);
         addStep("The Partitioning is done. Swap pivot node " + numNodes + " with first larger node " + (quickLargerIndex + 1) + " and set the new Node " + (quickLargerIndex + 1) + " to \"sorted\".");
@@ -823,7 +850,25 @@ function tempQuickStep(){
         return;
     }
 
-    quickPartition();
+    quickPartition();*/
+}
+
+
+//Sets up the function for a recurivsie quicksort
+function setMiniQuicksort(){
+    let endStart = quickEndsArray.pop();
+    quickSmallerIndex = endStart[0];        //set the start of the semisort
+    quickLargerIndex = endStart[1] - 1;         //set the end of the semisort
+    
+    addStep("Set Node " + (quickLargerIndex + 1) + " as \"pivot\" and Nodes " + (quickSmallerIndex + 1) + " to " + (quickLargerIndex)  + " as \"relevant\"");
+    setClass(nodes[quickLargerIndex], 2, "Current");
+    for(let q = quickSmallerIndex; q < quickLargerIndex; q++){
+        setClass(nodes[q], 2, "Relevant");
+    }
+
+
+    donePartition = false;
+    return;
 }
 
 function quickSteps(qStart, qEnd){
