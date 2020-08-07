@@ -144,7 +144,7 @@ function findStep(){
                 runSelectionSteps();
                 break;
             case "Quick":
-                runSelectionSteps();
+                runQuickSteps();
                 break;
             case "Bubble":
                 runBubbleStep();
@@ -775,17 +775,30 @@ var quickPivot;                 //stores the pivot height
 
 var partitionStep;          //partitioning takes 2 steps each
 
+var quickEndsArray = [];            //Since I can't use recursion, I'll have a stack that stores each end of each sub-quicksort
+
 
 function quickSetup(){
     quickStart = 0;
     partitionStep = 1;
     quickEnd = numNodes;
+    let endStart = [0, numNodes];
+    quickEndsArray.push(endStart);
     quickLargerIndex = numNodes - 1;
     orderArray = getOrder();
     quickPivot = orderArray[numNodes - 1];
     setClass(nodes[numNodes - 1], 2, "Current");    //Set the last node to the current color to represent the pivot
     addStep("Set Node " + (numNodes) + " as the \"pivot\"");
     quickSmallerIndex = 0;
+    quickStarted = true;
+}
+
+function runQuickSteps(){
+    if(!quickStarted){
+        quickSetup();
+    }
+
+    tempQuickStep();
 }
 
 function quicksort(){
@@ -803,8 +816,10 @@ function quicksort(){
 function tempQuickStep(){
     if(quickLargerIndex == quickSmallerIndex){
         numSwap(numNodes - 1, quickLargerIndex);
-        addStep("The Partitioning is done. Swap pivot node " + numNodes + " with first larger node " + (quickLargerIndex + 1) + ".");
+        addStep("The Partitioning is done. Swap pivot node " + numNodes + " with first larger node " + (quickLargerIndex + 1) + " and set the new Node " + (quickLargerIndex + 1) + " to \"sorted\".");
+        setClass(nodes[quickLargerIndex], 2, "Sorted");
         clearInterval(wait);
+        done = true;
         return;
     }
 
@@ -828,16 +843,6 @@ function quickSteps(qStart, qEnd){
     quickSortEnd();
 }
 
-
-//TODo
-/*
-2 Distinct phases.
-
-The one that takes up 99% of the thing is partitioning
-
-Otherwise, we are changing the boundaries in order to tell the function what to partition.
-
-*/
 
 //divides the list so that each element to the left of the pivot is smaller, and each elmement to the right larger
 function quickSetPivot(qStart, qEnd){  
@@ -869,7 +874,7 @@ function quickPartition(){
     if(orderArray[quickLargerIndex - 1] < quickPivot){      //The Node is smaller than the pivot
         numSwap(quickLargerIndex - 1, quickSmallerIndex);
         addStep("Index Node " + quickLargerIndex + " is smaller than pivot node " + (numNodes)+ ". Put the index node at the start and set it to \"smaller\"");
-        setClass(nodes[quickSmallerIndex], 2, "Sorted");
+        setClass(nodes[quickSmallerIndex], 2, "Combined");          //set Smaller classes to their special color
         swapArray(orderArray, quickSmallerIndex, quickLargerIndex - 1);   //Sets the node the the begining of the list
         quickSmallerIndex++;
     }else{ //This node is larger than or equal to the pivot
