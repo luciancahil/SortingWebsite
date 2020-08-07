@@ -774,9 +774,10 @@ var quickStart;              //Stores the begining of this particular quick sort
 var quickEnd;                //One above the end of the particular quicksort
 var quickStarted = false;    //Has quicksort started?
 var quickPivot;                 //stores the pivot height
-var donePartition;
+var quickDonePartition;
 var partitionStep;          //partitioning takes 2 steps each
-
+var quickLeftIndex;         //stores the start of the mini-quicksort
+var quickRightIndex;       //stores the end of the mini-quicksort
 var quickEndsArray = [];            //Since I can't use recursion, I'll have a stack that stores each end of each sub-quicksort
 
 
@@ -786,13 +787,8 @@ function quickSetup(){
     quickEnd = numNodes;
     let endStart = [0, numNodes];
     quickEndsArray.push(endStart);
-    //quickLargerIndex = numNodes - 1;
     orderArray = getOrder();
-    quickPivot = orderArray[numNodes - 1];
-    //setClass(nodes[numNodes - 1], 2, "Current");    //Set the last node to the current color to represent the pivot
-    //addStep("Set Node " + (numNodes) + " as the \"pivot\"");
-    //quickSmallerIndex = 0;
-    donePartition = true;
+    quickDonePartition = true;
     quickStarted = true;
 }
 
@@ -808,57 +804,40 @@ function quicksort(){
     quickSetup();
     
     wait = setInterval(tempQuickStep, delay);
-    quickSortEnd();
-    /*orderArray = getOrder();
-    alert(orderArray);
-    quickSteps(quickStart, quickEnd);
-
-    alert(orderArray);*/
 }
 
 function tempQuickStep(){
-
     //We must Set Nodes to relevant and get the pivot
-    if(donePartition){
+    if(quickDonePartition){
         setMiniQuicksort();
-        /*
-        let endStart = quickEndsArray.pop();
-        quickSmallerIndex = endStart[0];        //set the start of the semisort
-        quickLargerIndex = endStart[1] - 1;         //set the end of the semisort
-        
-        addStep("Set Node " + (quickLargerIndex + 1) + " as \"pivot\" and Nodes " + (quickSmallerIndex + 1) + " to " + (quickLargerIndex)  + " as \"relevant\"");
-        setClass(nodes[quickLargerIndex], 2, "Current");
-        for(let q = quickSmallerIndex; q < quickLargerIndex; q++){
-            setClass(nodes[q], 2, "Relevant");
-        }
-
-
-        donePartition = false;
-        return;*/
-    }
-
-
-
-
-    /*
-    if(quickLargerIndex == quickSmallerIndex){
-        numSwap(numNodes - 1, quickLargerIndex);
-        addStep("The Partitioning is done. Swap pivot node " + numNodes + " with first larger node " + (quickLargerIndex + 1) + " and set the new Node " + (quickLargerIndex + 1) + " to \"sorted\".");
-        setClass(nodes[quickLargerIndex], 2, "Sorted");
-        clearInterval(wait);
-        done = true;
         return;
     }
 
-    quickPartition();*/
+
+    //move a node either in the larger or smaller pile
+    if(quickSmallerIndex < quickLargerIndex){
+        quickPartition();
+        return;
+    }
+
+    movePivot();
+
+    //The stack is empty. No more semisorts are needed
+    if(quickEndsArray.length == 0){
+        quickSortEnd();
+    }
 }
 
 
 //Sets up the function for a recurivsie quicksort
 function setMiniQuicksort(){
     let endStart = quickEndsArray.pop();
+    quickLeftIndex = endStart[0];
     quickSmallerIndex = endStart[0];        //set the start of the semisort
+
+    quickRightIndex = endStart[1];
     quickLargerIndex = endStart[1] - 1;         //set the end of the semisort
+    quickPivot = orderArray[quickLargerIndex];      //Set the pivot as the last index
     
     addStep("Set Node " + (quickLargerIndex + 1) + " as \"pivot\" and Nodes " + (quickSmallerIndex + 1) + " to " + (quickLargerIndex)  + " as \"relevant\"");
     setClass(nodes[quickLargerIndex], 2, "Current");
@@ -867,8 +846,28 @@ function setMiniQuicksort(){
     }
 
 
-    donePartition = false;
+    quickDonePartition = false;
     return;
+}
+
+function movePivot(){
+    numSwap(quickRightIndex - 1, quickLargerIndex);
+    swapArray(orderArray, quickRightIndex - 1, quickLargerIndex);
+    addStep("The Partitioning is done. Swap pivot node " + numNodes + " with first larger node " + (quickLargerIndex + 1) + " and set the new Node " + (quickLargerIndex + 1) + " to \"sorted\".");
+    setClass(nodes[quickLargerIndex], 2, "Sorted");
+
+
+    if(quickSmallerIndex + 1 != quickRightIndex){
+        let rightEndStart = [quickSmallerIndex + 1, quickRightIndex];      //add the coordinates for a new semisort on the right, from the one after the pivot to the end
+        quickEndsArray.push(rightEndStart);
+    }
+
+
+    if(quickSmallerIndex != quickLeftIndex){
+        let leftEndStart = [quickLeftIndex, quickSmallerIndex];     //add the coordinates for a new semisort of the left nodes, from this sort's begining to the pivot
+        quickEndsArray.push(leftEndStart);
+    }
+    quickDonePartition = true;
 }
 
 function quickSteps(qStart, qEnd){
@@ -888,27 +887,8 @@ function quickSteps(qStart, qEnd){
     quickSortEnd();
 }
 
-
-//divides the list so that each element to the left of the pivot is smaller, and each elmement to the right larger
-function quickSetPivot(qStart, qEnd){  
-    quickSmallerIndex = qStart;             //index of the first unsorted array
-    quickLargerIndex = qEnd - 1;            //index of the first larger array
-    quickPivot = orderArray[qEnd - 1];
-    
-    while(quickLargerIndex > quickSmallerIndex){    
-        if(orderArray[quickLargerIndex - 1] < quickPivot){      //The Node is smaller than the pivot
-            swapArray(orderArray, quickSmallerIndex, quickLargerIndex - 1);   //Sets the node the the begining of the list
-            quickSmallerIndex++;
-        }else{ //This node is larger than or equal to the pivot
-            quickLargerIndex--;
-        }
-    }
-
-    swapArray(orderArray, qEnd - 1, quickLargerIndex);//Swaps the pivot with the first Node larger that it
-}
-
-
 function quickPartition(){
+    //Set the new index
     if(partitionStep == 1){
         partitionStep++;
         setClass(nodes[quickLargerIndex - 1], 2, "Index");
@@ -916,6 +896,7 @@ function quickPartition(){
         return;
     }
 
+    //put the index in the correct pile
     if(orderArray[quickLargerIndex - 1] < quickPivot){      //The Node is smaller than the pivot
         numSwap(quickLargerIndex - 1, quickSmallerIndex);
         addStep("Index Node " + quickLargerIndex + " is smaller than pivot node " + (numNodes)+ ". Put the index node at the start and set it to \"smaller\"");
@@ -931,9 +912,10 @@ function quickPartition(){
 }
 
 function quickSortEnd(){
+    addStep("The list is now sorted");
     randomizeButton.disabled = false;
     done = true;
-    //clearInterval(wait);
+    clearInterval(wait);
     sortSelector.disabled = false;
     randomizeButton.disabled = false;
 
