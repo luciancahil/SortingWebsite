@@ -3,6 +3,8 @@ var nodes = document.getElementsByClassName("Node");            //An array of No
 const numNodes = nodes.length;
 var wait;                                                       //the variable that will store all setInterval() objects
 var delay = 100;                                                //stores how many milliseconds each animation is delayed by
+var randomizeButton = document.getElementById("radomize");
+
 
 //The following are meant to help the nextStep button
 var started = false;        //for help with the "Next Step" button. Determines whether the function needs to setup the arrays or can proceed to the next step
@@ -98,7 +100,7 @@ function findSort(){
     if(done)
         return;
 
-    document.getElementById("radomize").disabled = true;
+    randomizeButton.disabled = true;
 
     let decision = sortSelector.value;
     switch(decision){
@@ -106,7 +108,7 @@ function findSort(){
             selectionSort();
             break;
         case "Quick":
-            selectionSort();
+            quicksort();
             break;
         case "Bubble":
             bubblesort();
@@ -341,7 +343,7 @@ function selectionSetNextSmallest(){
 function selectionFinish(){
     setClass(nodes[(numNodes - 1)], 2, "Sorted");       //sets final array to sorted color
     clearInterval(wait);                        //prevent the loop from continuing on sort button
-    document.getElementById("radomize").disabled = false;       //enables the randomize button
+    randomizeButton.disabled = false;       //enables the randomize button
     done = true;                                //causes next step button to do nothing
     sortSelector.disabled = false;              //allows for the selection of new sorting types
     addStep("Node " + (numNodes) + " is now sorted");
@@ -483,11 +485,11 @@ function bubbleLateEnd(){
     bubbleEnd();
     addStep("The list is now sorted.");
     setClass(nodes[0], 2, "Sorted");            //set the first node to be the sorted color
-    document.getElementById("radomize").disabled = false;
+    randomizeButton.disabled = false;
     return;
 }
 function bubbleEnd(){
-    document.getElementById("radomize").disabled = false;
+    randomizeButton.disabled = false;
     clearInterval(wait);
     sortSelector.disabled = false;
     done = true;
@@ -594,7 +596,7 @@ function insertionSetSorted(){
         done = true;
         clearInterval(wait);
         sortSelector.disabled = false;
-        document.getElementById("radomize").disabled = false;
+        randomizeButton.disabled = false;
         return;
     }
 }
@@ -713,7 +715,7 @@ function bogoFinish(){
     done = true;
     clearInterval(wait);
     sortSelector.disabled = false;
-    document.getElementById("radomize").disabled = false;
+    randomizeButton.disabled = false;
 }
 
 
@@ -746,6 +748,88 @@ function bogoRandomize(){
         let size = classes[j];
         setClass(node, 1, size);
     }
+}
+
+
+
+/*
+Quicksort
+Quicksort
+Quicksort
+Quicksort
+Quicksort
+Quicksort
+Quicksort
+Quicksort
+Quicksort
+Quicksort
+*/
+
+
+var quickSmallerIndex;         //The index the smaller Node will be placed in
+var quickLargerIndex;          //the number of Nodes larger than the pivot
+var quickStart;              //Stores the begining of this particular quick sort (quicksort is recursive)
+var quickEnd;                //One above the end of the particular quicksort
+var quickStarted = false;    //Has quicksort started?
+var quickPivot;
+
+
+function quickSetup(){
+    quickStart = 0;
+    quickEnd = numNodes;
+}
+
+function quicksort(){
+    quickSetup();
+    orderArray = getOrder();
+    alert(orderArray);
+    quickSteps(quickStart, quickEnd);
+
+    alert(orderArray);
+}
+
+function quickSteps(qStart, qEnd){
+    quickSetPivot(qStart, qEnd);                //do the first pivot, so that left = smaller and right = larger
+    let pivotLocation = quickSmallerIndex;      //store pivot location in case changes are made
+
+    if(pivotLocation > qStart + 1){             //sort everything on the left
+        quickSteps(0, pivotLocation);    
+    }
+
+    if(pivotLocation < qEnd -2){                //sort everything on the right
+        quickSteps(pivotLocation, qEnd);
+    }
+
+    quickSortEnd();
+}
+
+
+//divides the list so that each element to the left of the pivot is smaller, and each elmement to the right larger
+function quickSetPivot(qStart, qEnd){  
+    quickSmallerIndex = qStart;             //index of the first unsorted array
+    quickLargerIndex = qEnd - 1;            //index of the first larger array
+    quickPivot = orderArray[qEnd - 1];
+    
+    while(quickLargerIndex > quickSmallerIndex){    
+        if(orderArray[quickLargerIndex - 1] < quickPivot){      //The Node is smaller than the pivot
+            swapArray(orderArray, quickSmallerIndex, quickLargerIndex - 1);   //Sets the node the the begining of the list
+            quickSmallerIndex++;
+        }else{ //This node is larger than or equal to the pivot
+            quickLargerIndex--;
+        }
+    }
+
+    swapArray(orderArray, qEnd - 1, quickLargerIndex);//Swaps the pivot with the first Node larger that it
+}
+
+
+function quickSortEnd(){
+    randomizeButton.disabled = false;
+    done = true;
+    clearInterval(wait);
+    sortSelector.disabled = false;
+    randomizeButton.disabled = false;
+
 }
 
 //Helper Methods
@@ -892,6 +976,7 @@ function resetStarted(){
     bubbleStarted = false;
     insertionStarted = false;
     bogoStarted = false;
+    quickStarted = false;
 }
 
 function resetColor(){
