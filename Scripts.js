@@ -771,25 +771,50 @@ var quickLargerIndex;          //the number of Nodes larger than the pivot
 var quickStart;              //Stores the begining of this particular quick sort (quicksort is recursive)
 var quickEnd;                //One above the end of the particular quicksort
 var quickStarted = false;    //Has quicksort started?
-var quickPivot;
+var quickPivot;                 //stores the pivot height
+
+var partitionStep;          //partitioning takes 2 steps each
 
 
 function quickSetup(){
     quickStart = 0;
+    partitionStep = 1;
     quickEnd = numNodes;
+    quickLargerIndex = numNodes - 1;
+    orderArray = getOrder();
+    quickPivot = orderArray[numNodes - 1];
+    setClass(nodes[numNodes - 1], 2, "Current");    //Set the last node to the current color to represent the pivot
+    addStep("Set Node " + (numNodes) + " as the \"pivot\"");
+    quickSmallerIndex = 0;
 }
 
 function quicksort(){
     quickSetup();
-    orderArray = getOrder();
+    
+    wait = setInterval(tempQuickStep, delay);
+    quickSortEnd();
+    /*orderArray = getOrder();
     alert(orderArray);
     quickSteps(quickStart, quickEnd);
 
-    alert(orderArray);
+    alert(orderArray);*/
+}
+
+function tempQuickStep(){
+    if(quickLargerIndex == quickSmallerIndex){
+        numSwap(numNodes - 1, quickLargerIndex);
+        addStep("The Partitioning is done. Swap pivot node " + numNodes + " with first larger node " + (quickLargerIndex + 1) + ".");
+        clearInterval(wait);
+        return;
+    }
+
+    quickPartition();
 }
 
 function quickSteps(qStart, qEnd){
     quickSetPivot(qStart, qEnd);                //do the first pivot, so that left = smaller and right = larger
+    
+
     let pivotLocation = quickSmallerIndex;      //store pivot location in case changes are made
 
     if(pivotLocation > qStart + 1){             //sort everything on the left
@@ -803,6 +828,16 @@ function quickSteps(qStart, qEnd){
     quickSortEnd();
 }
 
+
+//TODo
+/*
+2 Distinct phases.
+
+The one that takes up 99% of the thing is partitioning
+
+Otherwise, we are changing the boundaries in order to tell the function what to partition.
+
+*/
 
 //divides the list so that each element to the left of the pivot is smaller, and each elmement to the right larger
 function quickSetPivot(qStart, qEnd){  
@@ -823,10 +858,32 @@ function quickSetPivot(qStart, qEnd){
 }
 
 
+function quickPartition(){
+    if(partitionStep == 1){
+        partitionStep++;
+        setClass(nodes[quickLargerIndex - 1], 2, "Index");
+        addStep("Compare Index Node " + quickLargerIndex + " to pivot node " + (numNodes - 1) + ".");
+        return;
+    }
+
+    if(orderArray[quickLargerIndex - 1] < quickPivot){      //The Node is smaller than the pivot
+        numSwap(quickLargerIndex - 1, quickSmallerIndex);
+        addStep("Index Node " + quickLargerIndex + " is smaller than pivot node " + (numNodes)+ ". Put the index node at the start and set it to \"smaller\"");
+        setClass(nodes[quickSmallerIndex], 2, "Sorted");
+        swapArray(orderArray, quickSmallerIndex, quickLargerIndex - 1);   //Sets the node the the begining of the list
+        quickSmallerIndex++;
+    }else{ //This node is larger than or equal to the pivot
+        addStep("Index Node " + quickLargerIndex + " is larger than pivot node " + (numNodes)+ ". Set the node to \"larger\"");
+        setClass(nodes[quickLargerIndex - 1], 2, "Special");
+        quickLargerIndex--;
+    }
+    partitionStep = 1
+}
+
 function quickSortEnd(){
     randomizeButton.disabled = false;
     done = true;
-    clearInterval(wait);
+    //clearInterval(wait);
     sortSelector.disabled = false;
     randomizeButton.disabled = false;
 
