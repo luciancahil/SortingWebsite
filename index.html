@@ -53,9 +53,11 @@
                          Every time we find a node smaller than the "smallest" Node, we set that Node as the new "Smallest" Node. 
                           After iterating through each Element,we switch the "current" and "smallest" node. Repeat for each Node after the first.</p>
                         <p><Strong>Color Key:</Strong></p>
-                        <p class = "Special">Smallest</p>
-                        <p class = "Current">Current</p>
+                        <p class = "Current">Pivot</p>
+                        <p class = "Relevant">Relevant</p>
                         <p class = "Index">Index</p>
+                        <p class = "Combined">Smaller</p>
+                        <p class = "Special">Larger</p>
                         <p class = "Sorted">Sorted</p>
                     </div>
                 </div>
@@ -66,3 +68,12 @@
 
 <link rel="stylesheet" type="text/css" href="Style.css">
 <script src="Scripts.js"></script>
+
+
+<!--
+    Pivot = "Current"           Nodes are divided based on whether they are larger or smaller than this Node
+Relevant ="Relevant"        Nodes we are comparing with node in this particular minisubsort.
+Index = "Index"             The node we are currently comparing to the pivot
+Smaller = "Combined"        Nodes smaller than the pivot
+Larger = "Special"          Nodes larger than the pivot
+-->

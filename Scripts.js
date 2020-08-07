@@ -753,18 +753,23 @@ function bogoRandomize(){
 
 
 /*
-Quicksort
-Quicksort
-Quicksort
-Quicksort
-Quicksort
-Quicksort
-Quicksort
-Quicksort
-Quicksort
-Quicksort
+Quick sort works by setting the end element as a "pivot" and all Nodes as "Relevant" and then seperating the list into two sublists,
+one larger than the pivot, and one smaller. 
 
-Pivot = "current"
+Then switch the pivot with the first larger array, then that Node is now sorted.
+
+We then do a mini sort with each sublist, setting the last element of each sublist as "pivot" and each other element as "relevant", 
+then seperating them like before, creating up to 2 more sublists.
+
+Repeat for each subgroup until each subgroup is only one or zero element large, and we have a sorted list.
+
+
+
+Pivot = "Current"           Nodes are divided based on whether they are larger or smaller than this Node
+Relevant ="Relevant"        Nodes we are comparing with node in this particular minisubsort.
+Index = "Index"             The node we are currently comparing to the pivot
+Smaller = "Combined"        Nodes smaller than the pivot
+Larger = "Special"          Nodes larger than the pivot
 */
 
 
@@ -774,7 +779,7 @@ var quickStart;              //Stores the begining of this particular quick sort
 var quickEnd;                //One above the end of the particular quicksort
 var quickStarted = false;    //Has quicksort started?
 var quickPivot;                 //stores the pivot height
-var quickDonePartition;
+var quickDonePartition;      //If false, continue partitioning. If true, set a new mini quicksort
 var partitionStep;          //partitioning takes 2 steps each
 var quickLeftIndex;         //stores the start of the mini-quicksort
 var quickRightIndex;       //stores the end of the mini-quicksort
@@ -797,16 +802,16 @@ function runQuickSteps(){
         quickSetup();
     }
 
-    tempQuickStep();
+    quickStep();
 }
 
 function quicksort(){
     quickSetup();
     
-    wait = setInterval(tempQuickStep, delay);
+    wait = setInterval(quickStep, delay);
 }
 
-function tempQuickStep(){
+function quickStep(){
     //We must Set Nodes to relevant and get the pivot
     if(quickDonePartition){
         setMiniQuicksort();
@@ -831,7 +836,7 @@ function tempQuickStep(){
 
 //Sets up the function for a recurivsie quicksort
 function setMiniQuicksort(){
-    let endStart = quickEndsArray.pop();
+    let endStart = quickEndsArray.pop();        //get the new start and end from the stack
     quickLeftIndex = endStart[0];
     quickSmallerIndex = endStart[0];        //set the start of the semisort
 
@@ -840,31 +845,32 @@ function setMiniQuicksort(){
     quickPivot = orderArray[quickLargerIndex];      //Set the pivot as the last index
     
     addStep("Set Node " + (quickLargerIndex + 1) + " as \"pivot\" and Nodes " + (quickSmallerIndex + 1) + " to " + (quickLargerIndex)  + " as \"relevant\"");
-    setClass(nodes[quickLargerIndex], 2, "Current");
-    for(let q = quickSmallerIndex; q < quickLargerIndex; q++){
+    setClass(nodes[quickLargerIndex], 2, "Current");        //Set the last node of the sublist as the pivot
+
+    for(let q = quickSmallerIndex; q < quickLargerIndex; q++){      //set every other Node of the sublist as relevant
         setClass(nodes[q], 2, "Relevant");
     }
 
 
     quickDonePartition = false;
-    return;
 }
 
+
 function movePivot(){
-    numSwap(quickRightIndex - 1, quickLargerIndex);
+    numSwap(quickRightIndex - 1, quickLargerIndex);                         //swap the pivot (last item in the sublist) with the first larger element
     swapArray(orderArray, quickRightIndex - 1, quickLargerIndex);
     addStep("The Partitioning is done. Swap pivot node " + numNodes + " with first larger node " + (quickLargerIndex + 1) + " and set the new Node " + (quickLargerIndex + 1) + " to \"sorted\".");
-    setClass(nodes[quickLargerIndex], 2, "Sorted");
+    setClass(nodes[quickLargerIndex], 2, "Sorted");     //Set the pivot as sorted in it's new position
 
-
+    //add the coordinates for a new semisort on the right, from the one after the pivot to the end if any nodes ended up on the right
     if(quickSmallerIndex + 1 != quickRightIndex){
-        let rightEndStart = [quickSmallerIndex + 1, quickRightIndex];      //add the coordinates for a new semisort on the right, from the one after the pivot to the end
+        let rightEndStart = [quickSmallerIndex + 1, quickRightIndex];      
         quickEndsArray.push(rightEndStart);
     }
 
-
+    //add the coordinates for a new semisort of the left nodes, from this sort's begining to the pivot if any nodes ended up on the left
     if(quickSmallerIndex != quickLeftIndex){
-        let leftEndStart = [quickLeftIndex, quickSmallerIndex];     //add the coordinates for a new semisort of the left nodes, from this sort's begining to the pivot
+        let leftEndStart = [quickLeftIndex, quickSmallerIndex];     
         quickEndsArray.push(leftEndStart);
     }
     quickDonePartition = true;
@@ -898,14 +904,14 @@ function quickPartition(){
 
     //put the index in the correct pile
     if(orderArray[quickLargerIndex - 1] < quickPivot){      //The Node is smaller than the pivot
-        numSwap(quickLargerIndex - 1, quickSmallerIndex);
+        numSwap(quickLargerIndex - 1, quickSmallerIndex);               //swap the smaller array with the first unpartitioned node
         addStep("Index Node " + quickLargerIndex + " is smaller than pivot node " + (numNodes)+ ". Put the index node at the start and set it to \"smaller\"");
-        setClass(nodes[quickSmallerIndex], 2, "Combined");          //set Smaller classes to their special color
+        setClass(nodes[quickSmallerIndex], 2, "Combined");          //set Smaller Node to the smaller color
         swapArray(orderArray, quickSmallerIndex, quickLargerIndex - 1);   //Sets the node the the begining of the list
         quickSmallerIndex++;
     }else{ //This node is larger than or equal to the pivot
         addStep("Index Node " + quickLargerIndex + " is larger than pivot node " + (numNodes)+ ". Set the node to \"larger\"");
-        setClass(nodes[quickLargerIndex - 1], 2, "Special");
+        setClass(nodes[quickLargerIndex - 1], 2, "Special");        //set larger node to the larger color
         quickLargerIndex--;
     }
     partitionStep = 1
@@ -918,7 +924,6 @@ function quickSortEnd(){
     clearInterval(wait);
     sortSelector.disabled = false;
     randomizeButton.disabled = false;
-
 }
 
 //Helper Methods
@@ -1097,7 +1102,7 @@ function resetSteps(){
 const explaination = document.getElementById("writeup");        //The Text at the bottom of the page explaing the sorting method
 
 const SelectionExplanation = "<p>Selection sort works by iterating through each element, and swaping the smallest element with the first element that isn't yet sorted.</p> <p>We start by Setting the first node as both the \"current\" and \"smallest\" Node. We then iterate through each node after it. Every time we find a node smaller than the \"smallest\" Node, we set that Node as the new \"Smallest\" Node. After iterating through each Element,we switch the \"current\" and \"smallest\" node. Repeat for each Node after the first.</p> <p><Strong>Color Key:</Strong></p> <p class = \"Special\">Smallest</p> <p class = \"Current\">Current</p> <p class = \"Index\">Index</p> <p class = \"Sorted\">Sorted</p>";
-const QuickExplanation = "<p>Quick sort works by choosing the middle element, and then dividing each element into 2 groups: one larger than the chosen element, and one smaller. Repeat for each subgroup until each subgroup is only one elment large, and we have a sorted list</p>"
+const QuickExplanation = "<p>Quick sort works by setting the end element as a \"pivot\" and all Nodes as \"Relevant\" and then seperating the list into two sublists, one larger than the pivot, and one smaller. Then switch the pivot with the first larger array, then that Node is now sorted.</p> <p> We then do a mini sort with each sublist, setting the last element of each sublist as \"pivot\" and each other element as \"relevant\", then seperating them like before, creating up to 2 more sublists. Repeat for each subgroup until each subgroup is only one or zero element large, and we have a sorted list. <p><strong>Color Key:</strong></p> <p class = \"Current\">Pivot</p> <p class = \"Relevant\">Relevant</p> <p class = \"Index\">Index</p> <p class = \"Combined\">Smaller</p> <p class = \"Special\">Larger</p> <p class = \"Sorted\">Sorted</p>"
 const BubbleExplanation = "<p>Bubble sort works by setting the first element as the main element and comparing it to the next. If the element is larger than the next, switch. Otherwise, set the next element as the main elment. Repeat until the main elment is at the end of the list (the largest is now the larges). Repeat for each element</p>  <p>We start by setting the first node as \"Current\" and the second Node as \"Next\". If \"Next\" is smaller than \"Current\", we swap the two. Then set 2 as \"Current\" and 3 as \"Next\". Repeat Until \"Next\" has reached the end of the unsorted nodes. That Node is now sorted. Repeat the process until each node has been moved to it's proper place, or we iterate through the list without any swaps.<p/>  <p><strong>Color Key:</strong></p> <p class = \"Current\">Current</p> <p class = \"Special\">Next</p> <p class = \"Sorted\">Sorted</p>";
 const InsertionExplation = "<p>Insertion sort works by taking an already sorted array at the start (An array of One is sorted), and swapping the next element with the next largest sorted element until the next element is in the proper order. Repeat for each element.</p> <p>We start by setting the first Node as \"semi-sorted\". We then set the second Node as \"Current\" and the first node as \"prev\". If \"current\" is smaller than \"prev\", then switch. Then, set the third node as \"current\" and the second node as prev, and so on. Each time, swap \"current\" and \"prev\" until we either reach the start of the list or a smaller node in the semi sorted lsit. Then, that node is also sem-sorted. </p> <p><Strong>Color Key:</Strong></p> <p class = \"Special\">Prev</p> <p class = \"Current\">Current</p> <p class = \"Sorted\">Semi-Sorted</p>"
 const MergeExplanation = "<p>Merge sort works by breaking each half of the list into a sorted array. We then add the smallest element from each subarray into a new array, repeating until both subarrays are exhausted. We then copy each element in order from the new array to the old array.</p>";
