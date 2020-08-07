@@ -337,8 +337,9 @@ var bubbleIndex = 0;                //stores the index Node's index
 var bubbleSwap = false;             //does the next step involve switching?
 var bubbleStarted = false;          //Have the bubble sort variables been set to their needs?
 var bubbleIsSorted = true;          //Start by assuming each iteration that the list is sorted. If a switch is made, set this to false
-var bubbleSwapStep = 1;                   //Swaping takes several steps. This stores which one we are on.
 var bubbleEndStep = 1;                  //Once a node reaches the end, several steps must be taken
+
+
 function bubbleStart(){
     swapStep = 1
     bubbleLimit = numNodes;
@@ -370,13 +371,8 @@ function bubbleStep(){
     }
     //switch two Nodes
     if(bubbleSwap){
-        if(bubbleSwapStep == 1){
-            bubbleSwapNodes();
-            return;
-        }else if(bubbleSwapStep == 2){  // Set the new next node if we are not on the last node
-            bubbleSetNext();
-            return;
-        }
+        bubbleSwapNodes();
+        return;
     }
     
     if(bubbleIndex < bubbleLimit - 1){          //Compare Nodes to the next one
@@ -393,6 +389,7 @@ function bubbleStep(){
 function bubbleSwapNodes(){
     addStep("Current Node " + (bubbleIndex + 1) + " is larger than next Node " + (bubbleIndex + 2) + ". Switch the two nodes.");
     swapArray(orderArray, bubbleIndex, bubbleIndex + 1);
+    bubbleSwap = false;
     numSwap(bubbleIndex, bubbleIndex + 1);
     bubbleIndex++;
     bubbleIsSorted = false;     //If a single switch occurs, that means the list is not sorted
@@ -402,14 +399,7 @@ function bubbleSwapNodes(){
         bubbleSwapStep = 1;
     }
 }
-//changes color of the next node if it exists
-function bubbleSetNext(){
-    addStep("Set Node " + (bubbleIndex + 2) + " as \"next\".");
-    setClass(nodes[bubbleIndex + 1], 2, "Special");       //sets the following index as the "next" color
-    setClass(nodes[bubbleIndex - 1], 2, "Default");     //sets the previous node as previous
-    bubbleSwapStep = 1;
-    bubbleSwap = false;
-}
+
 //moves the index and current nodes up, then compares them
 function bubbleCompareNodes(){
     addStep("Compare current Node " + (bubbleIndex + 1) + " next Node " + (bubbleIndex + 2) + ".");
