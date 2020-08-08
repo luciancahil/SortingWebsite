@@ -1264,12 +1264,18 @@ var mergeStartsEnds;            //a stack that contains all the ends and starts 
 var mergeJustSorted;            //Whether what we just sorted was left or right
 var mergingStep;                //Merging takes 3 steps: preparation, setting indexes, and actually merging
 
+var mergeLeftIndex;             //Indexes of we compare to each other to see what ends up on the invisible array
+var mergeRightIndex;
+
+var mergeInvisibleArray;        //Array that stores recently merged items
+
 function mergeBegin(){
     mergeDivisionStep = 1;
     mergeStarted = true;
     mergeStartsEnds = [];
     mergeStartsEnds.push([0, numNodes, "left"])         //left because no further sorts are needed
     mergeJustSorted = "left";
+    orderArray = getOrder();
     mergingStep = 1;
 }
 
@@ -1294,6 +1300,8 @@ function mergeSteps(){
                 mergePrepareMerging();
             }else if(mergingStep == 2){
                 mergeSetIndexes();
+            }else if(mergingStep == 3){
+                mergeSublists();
             }
         }
         
@@ -1335,6 +1343,60 @@ function mergeSetIndexes(){
     addStep("Set Step " + (mergeStart + 1) + " as \"Left Index\" and " + (mergeMiddle + 1) + " as \"Right Index\".");
     setClass(nodes[mergeStart], 2, "Index");        // set the first left node as left index color
     setClass(nodes[mergeMiddle], 2, "Combined");        // set the first right node as left index color
+    mergingStep = 3;
+    mergeLeftIndex = mergeStart;
+    mergeRightIndex = mergeMiddle;
+}
+
+function mergeSublists(){
+
+    //Both sublists have been fully entered
+    if(mergeLeftIndex == mergeMiddle && mergeRightIndex == mergeEnd){
+        addStep("Both the left and right nodes have all been added onto the invisible array");
+        mergingStep = 4;
+        return;
+    }
+
+    //left sublist is exhausted, but not the right
+    if(mergeLeftIndex == mergeMiddle){
+        setClass(nodes[mergeRightIndex++], 2, "Current");
+        addStep("The Left nodes have all been added to the invisible subarray. Add Right Index Node " +  mergeRightIndex + " to the invisible array.")
+        if(mergeRightIndex != mergeEnd){                //set a new right index if neede
+            setClass(nodes[mergeRightIndex], 2, "Combined");
+        }
+
+        return;
+    }
+
+    //right sublist is exhausted, but not the left
+    if(mergeRightIndex == mergeEnd){
+        setClass(nodes[mergeLeftIndex++], 2, "Special");
+        addStep("The Right nodes have all been added to the invisible subarray. Add Left Index Node " +  mergeLeftIndex + " to the invisible array.")
+        if(mergeLeftIndex != mergeMiddle){              //set a new left index if needed
+            setClass(nodes[mergeLeftIndex], 2, "Index");
+        }
+
+        return;
+    }
+
+    //neither sublist is empty
+
+    if(orderArray[mergeLeftIndex] > orderArray[mergeRightIndex]){
+        setClass(nodes[mergeRightIndex++], 2, "Current");
+        addStep("The Left index node is greater than the right index node. Add Right Index Node " +  mergeRightIndex + " to the invisible array.")
+        if(mergeRightIndex != mergeEnd){                //set a new right index if neede
+            setClass(nodes[mergeRightIndex], 2, "Combined");
+        }
+    }else{
+        setClass(nodes[mergeLeftIndex++], 2, "Current");
+        addStep("The Right Index node is greater than or equal to the Left Index Node. Add Left Index Node " +  mergeLeftIndex + " to the invisible array.")
+        if(mergeLeftIndex != mergeMiddle){              //set a new left index if needed
+            setClass(nodes[mergeLeftIndex], 2, "Index");
+        }
+
+        return;
+    }
+
 }
 
 function mergeDivide(){
