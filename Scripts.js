@@ -1009,21 +1009,17 @@ function heapStep(){
         return;
     }
 
-    heapEnd();
+    //heapEnd();
 }
 
 function sortHeap(){
-    //the list is now sorted
-    
-
-    //Swap the head with the last node in the heap. The head is now sorted
     if(sortHeapStep == 1){
+        //Swap the head with the last node in the heap. The head is now sorted
         swapHeapHead();
-    }else if(sortHeapStep == 2){    //sink the head into it's proper place
+
+    //sink Node 0 into it's proper place
+    }else if(sortHeapStep == 2){    
         if(heapSize == 2){
-            addStep("Node 1 is now sorted");
-            setClass(nodes[0], 2, "Sorted");
-            addStep("The List is now sorted");
             heapEnd();
             return;
         }
@@ -1031,18 +1027,13 @@ function sortHeap(){
         //Find the larger child branch
         if(heapSinkStep == 1){          
             heapSetLargerBranch();
-        }else if(heapSinkStep == 2){        //compare current to the larger child branch. Swap if need be
+
+        //compare current to the larger child branch. Swap if need be
+        }else if(heapSinkStep == 2){        
             if(orderArray[currentHeapPosition] < orderArray[heapLargerBranch]){      //we must swap in this case.
-                addStep("Current Node " + (currentHeapPosition + 1) + " is smaller than it's larger branch node " + (heapLargerBranch + 1) + ". Swap the two nodes.");
-                numSwap(currentHeapPosition, heapLargerBranch);
-                swapArray(orderArray, currentHeapPosition, heapLargerBranch);
-                heapOldPosition = currentHeapPosition;
-                currentHeapPosition = heapLargerBranch;
+                heapSwapWithChild();
             }else{      //we don't have to swap
-                addStep("Current Node " + (currentHeapPosition + 1) +  " is greater than or equal to it's larger branch node " + (heapLargerBranch + 1) + ". Current Node is now in the heap proper.")
-                setClass(nodes[currentHeapPosition], 2, "Relevant");
-                setClass(nodes[heapLargerBranch], 2, "Relevant");
-                sinkNodeDone();
+                heapIsLargerThanChild();
             }
 
             heapSinkStep = 1;
@@ -1080,7 +1071,7 @@ function heapSetLargerBranch(){
     }
 
 
-    //Only one index
+    //Only one branch
     if(childTwo >= heapSize - 1){
         addStep("Compare Current Node " + (currentHeapPosition + 1) + " to its branch Node " + (childOne + 1) + ".")
         setClass(nodes[childOne], 2, "Special");
@@ -1099,6 +1090,21 @@ function heapSetLargerBranch(){
     addStep("Compare Current Node " + (currentHeapPosition + 1) + " to its larger branch Node " + (heapLargerBranch + 1) + ".")
     setClass(nodes[heapLargerBranch], 2, "Special");
     heapSinkStep = 2;
+}
+
+function heapSwapWithChild(){
+    addStep("Current Node " + (currentHeapPosition + 1) + " is smaller than it's larger branch node " + (heapLargerBranch + 1) + ". Swap the two nodes.");
+    numSwap(currentHeapPosition, heapLargerBranch);
+    swapArray(orderArray, currentHeapPosition, heapLargerBranch);
+    heapOldPosition = currentHeapPosition;
+    currentHeapPosition = heapLargerBranch;
+}
+
+function heapIsLargerThanChild(){
+    addStep("Current Node " + (currentHeapPosition + 1) +  " is greater than or equal to it's larger branch node " + (heapLargerBranch + 1) + ". Current Node is now in the heap proper.")
+    setClass(nodes[currentHeapPosition], 2, "Relevant");
+    setClass(nodes[heapLargerBranch], 2, "Relevant");
+    sinkNodeDone();
 }
 
 //The node has sunk to it's correct position
@@ -1213,6 +1219,9 @@ function setToHeap(){
 
 //Done creating a heap
 function heapEnd(){
+    addStep("Node 1 is now sorted");
+    setClass(nodes[0], 2, "Sorted");
+    addStep("The List is now sorted");
     clearInterval(wait);
     randomizeButton.disabled = false;
     sortSelector.disabled = false;
