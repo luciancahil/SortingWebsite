@@ -1341,6 +1341,10 @@ function mergePrepareMerging(){
         setClass(nodes[q], 2, "Special");       //set all left nodes to proper color. Don't worry about right, as those are already colored
     }
 
+    for(let q = mergeMiddle; q < mergeEnd; q++){
+        setClass(nodes[q], 2, "Current"); 
+    }
+
     mergingStep = 2;
 }
 
@@ -1398,7 +1402,7 @@ function mergeSublists(){
         }
     }else{      //right node is bigger
         mergeInvisibleArray.push(orderArray[mergeLeftIndex]);
-        setClass(nodes[mergeLeftIndex++], 2, "Current");
+        setClass(nodes[mergeLeftIndex++], 2, "Special");
         addStep("The Right Index node is greater than or equal to the Left Index Node. Add Left Index Node " +  mergeLeftIndex + " to the invisible array.")
         if(mergeLeftIndex != mergeMiddle){              //set a new left index if needed
             setClass(nodes[mergeLeftIndex], 2, "Index");
@@ -1419,9 +1423,11 @@ function mergeCopyFromInvsibleList(){
         mergeJustSorted =  mergeStartsEnds.pop()[2];
         return;
     }
+    let num = mergeInvisibleArray.shift()
 
-    let sizeClass = "s" + (mergeInvisibleArray.shift() + 1);
+    let sizeClass = "s" + (num + 1);
     
+    orderArray[mergeStart] = num;
     setClass(nodes[mergeStart], 1, sizeClass);
     setClass(nodes[mergeStart++], 2, "Sorted");
 }
