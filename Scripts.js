@@ -1262,21 +1262,29 @@ var mergeEndsStarts = [];               //stack to store the starts and ends of 
 var mergeSetLeft;
 var mergedArray = [];               //Array we will coppy arrays to in order
 
-var leftSorted;
-var rightSorted;
+var mergeLeftSorted;
+var mergeRightSorted;
+var mergeAction;                  //two distinct merge Steps. One to set the coordinates, one to merge
+var mergeLeftIndex;                      //The index of the node on the left we are trying to merge
+var mergeRightIndex;
+var mergeLeftLimit;
+var mergeRightLimit;
+var mergedArrayIndex;
 
 var mergeStarted = false;
 
 
 function mergeBegin(){
     mergeSetLeft = true;
+    orderArray = getOrder();
     mergeStart = 0;
     mergeDivideStep = 1;
     mergeEnd = numNodes;
     mergeStarted = true;
     mergeMiddle = numNodes/2;
-    leftSorted = false;
-    rightSorted = false;
+    mergeLeftSorted = false;
+    mergeRightSorted = false;
+    mergeAction = 1;
 }
 
 
@@ -1298,12 +1306,104 @@ function mergeSort(){
 
 
 function mergeStep(){
+    if(mergeLeftSorted && mergeRightSorted){
+        if(mergeAction == 1){
+            setMergeIndexes();
+            return;
+        }else if(mergeAction == 2){
+            mergeSublists();
+            return;
+        }else if(mergeAction == 3){
+            mergeCopyHeight();
+            return;
+        }
+    }
+
     if(mergeDivideStep == 1){
-    mergeDivide();
+        mergeDivide();
     }else if (mergeDivideStep == 2){
         mergeSetEnds();
     }
 }
+
+function setMergeIndexes(){
+    mergeLeftIndex = mergeEndsStarts[mergeEndsStarts.length - 1][0];
+    mergeLeftLimit = mergeEndsStarts[mergeEndsStarts.length - 1][1];
+
+    mergeRightIndex = mergeEndsStarts[mergeEndsStarts.length - 2][0];
+    mergeRightLimit = mergeEndsStarts[mergeEndsStarts.length - 2][1] + 1;
+
+    setClass(nodes[mergeLeftIndex], 2, "Index"); //set the node to the left index color
+    setClass(nodes[mergeRightIndex], 2, "Combined"); //set the node to the left index color
+    addStep("Set Node " + (mergeLeftIndex + 1) + " as \"Left Index\" and node " + (mergeRightIndex + 1) + " as \"Right Index\"");
+    mergeAction = 2;
+}
+
+function mergeSublists(){
+
+    if(mergeLeftIndex == mergeLeftLimit && mergeRightIndex == mergeRightLimit){//both arrays are exhausted
+        mergeAction = 3;
+        addStep("All elements on both sublists have been added to the invisible array");
+        mergeEndsStarts.pop();
+        mergeEndsStarts.pop();
+        mergedArrayIndex = 0;
+
+        mergeRightIndex = mergeEndsStarts[mergeEndsStarts.length -1][1];
+        mergeLeftIndex = mergeEndsStarts[mergeEndsStarts.length -1][0];
+        return;
+    }
+    
+    if(mergeLeftIndex == mergeLeftLimit){        // we have exhausted all of the left subbaray
+        mergedArray.push(orderArray[mergeRightIndex++]);
+        setClass(nodes[mergeRightIndex - 1], 2, "Current");      //set node to typical left color
+        addStep("There are no more nodes on the left. Add right node " + mergeRightIndex + " to the invible array");
+
+        return;
+    }
+
+    if(mergeRightIndex == mergeRightLimit){
+        mergedArray.push(orderArray[mergeLeftIndex++]);
+
+        setClass(nodes[mergeLeftIndex - 1], 2, "Special");     //set the node to the typical right color
+        addStep("There are no more nodes on the right. Add left node " + mergeLeftIndex + " to the invible array");
+
+        return;
+    }
+
+    if(orderArray[mergeLeftIndex] > orderArray[mergeRightIndex]){       //left is larger, so we put on right
+        addStep("Left Node " + (mergeLeftIndex + 1) + " is larger than " + (mergeRightIndex + 1) + ". Add right node " + (mergeRightIndex + 1) + " to the invilible Array.");
+
+        mergedArray.push(orderArray[mergeRightIndex]);
+
+        setClass(nodes[mergeRightIndex++], 2, "Current");        //reset to typical left color
+        if(mergeRightIndex < mergeRightLimit){
+            setClass(nodes[mergeRightIndex], 2, "Combined");        //set to left index color
+        }
+
+    }else{
+        addStep("Left Node " + (mergeRightIndex + 1) + " is larger than " + (mergeLeftIndex + 1) + ". Add left node " + (mergeLeftIndex + 1) + " to the invilible Array.");
+
+        mergedArray.push(orderArray[mergeLeftIndex]);
+
+        setClass(nodes[mergeLeftIndex++], 2, "Special");        //reset to typical left color
+
+        if(mergeLeftIndex < mergeLeftLimit){
+            setClass(nodes[mergeLeftIndex], 2, "Index");        //set to left index color
+        }
+    }
+}
+
+function mergeCopyHeight(){
+    if(mergeLeftIndex == mergeRightLimit){
+        addStep("All Nodes from the invisble array has been carried over");
+    }
+
+    let heightClass = "s" + (mergedArray[mergedArrayIndex++] + 1);
+    setClass(nodes[mergeLeftIndex], 2, "Sorted");
+    alert(heightClass);
+    setClass(nodes[mergeLeftIndex++], 1, heightClass);
+}
+
 
 
 //sets the colors of a divide, and adds the ends of the list to a stack
@@ -1336,20 +1436,20 @@ function mergeSetEnds(){
 
     if(mergeSetLeft){
         if(mergeStart == mergeMiddle){
-            addStep("The left nodes are merge-sorted");
-            alert(mergeEndsStarts.pop());
+            addStep("The left nodes are merge-sorted.");
+            mergeLeftSorted = true;
             mergeSetLeft = false;
         }else{
-            addStep("The Left Nodes have not been merge-sorted");
+            addStep("The Left Nodes have not been merge-sorted.");
             mergeDivideStep = 1;
             return;
         }
     }else{
-        if(mergeMiddle == mergeEnd){
-            addStep("The right nodes are merge-sorted");
-            alert(mergeEndsStarts.pop());
+        if(mergeMiddle == mergeEnd - 1){
+            addStep("The right nodes are merge-sorted.");
+            mergeRightSorted = true;
         }else{
-            addStep("The right nodes have not been merge-sorted");
+            addStep("The right nodes have not been merge-sorted.");
             mergeDivideStep = 1;
             return;
         }
