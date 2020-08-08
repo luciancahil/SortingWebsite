@@ -117,7 +117,7 @@ function findSort(){
             insertionSort();
             break;
         case "Merge":
-            selectionSort();
+            mergeSort();
             break;
         case "Heap":
             heapSort();
@@ -153,7 +153,7 @@ function findStep(){
                 runInsertionStep();
                 break;
             case "Merge":
-                runSelectionSteps();
+                runMergeStep();
                 break;
             case "Heap":
                 runHeapStep();
@@ -1230,6 +1230,267 @@ function heapEnd(){
 
 
 
+/*
+Merge sorts requires two sorted lists. We set an index at the start of each list. We compare the two indexes, and the smaller index gets added onto an invisible array, and that lists index increments up. Repeat until one index is outside of it's list, then add all of the remaining nodes from the other list onto the invisible array.
+
+After that, we copy each node from the invsible array, and we now have a sorted list.
+
+In order to use mergesort on a completely random array, break the node into two sub lists, left and right. 
+Then set the left list as "relevant", and divide again and againn, until we only have one list in both its sublist.
+A list with onlye one elment is sorted, so we can merge the lists. Keep creating sorted lists until the entire left list is sorted, 
+then repeat with the right, before finally merging both left and right together to complete the sort.
+
+Left = "Special"            //The left list
+Right = "Current"           //The right list
+Relevant = "Relevant"       //The entire sublist we are observing
+
+Leftindex: "Index"          //Indexes we compare to each other. The smaller one gets added to the invisible array.
+RightIndex: "Combined"
+*/
+
+var mergeDivisionStep;           // dividing takes two steps. Setting the stage, and dividing if needed
+var mergeStarted = false;
+var mergeStart;                 //Start of th elist. The first left node
+var mergeEnd;                   //End of the sublist. One more than the last right NOde
+var mergeMiddle;                //Middle of the list. One more than the last left Node
+var mergeStartsEnds;            //a stack that contains all the ends and starts of teh submlists we must consider, in format (include, exclude). 
+                                // The third element is whether this was a left or right subbaray, as we must merge after sorting a right array
+
+var mergeJustSorted;            //Whether what we just sorted was left or right
+var mergingStep;                //Merging takes 3 steps: preparation, setting indexes, and actually merging
+
+var mergeLeftIndex;             //Indexes of we compare to each other to see what ends up on the invisible array
+var mergeRightIndex;
+
+var mergeInvisibleArray;        //Array that stores recently merged items
+//var mergeInvisibleIndex;        //Index that tells us witch height to copy from the invisible array
+
+
+function mergeBegin(){
+    mergeDivisionStep = 1;
+    mergeStarted = true;
+    mergeStartsEnds = [];
+    mergeInvisibleArray = [];
+    mergeStartsEnds.push([0, numNodes, "left"])         //left because no further sorts are needed
+    mergeJustSorted = "left";
+    orderArray = getOrder();
+    mergingStep = 1;
+}
+
+function mergeSort(){
+    if(!mergeStarted){
+        mergeBegin();
+    }
+
+    wait = setInterval(mergeSteps, delay);
+}
+
+
+function runMergeStep(){
+    if(!mergeStarted){
+        mergeBegin();
+    }
+
+    mergeSteps();
+}
+
+function mergeSteps(){
+    if(mergeDivisionStep == 1){
+        //look at the next list
+        if(mergeJustSorted == "left"){
+            mergeSetRelevant();
+
+        //prepare the next list for merging
+        }else{
+            if(mergingStep == 1){
+                mergePrepareMerging();
+            }else if(mergingStep == 2){
+                mergeSetIndexes();
+            }else if(mergingStep == 3){
+                mergeSublists();
+            }else if(mergingStep == 4){
+                mergeCopyFromInvsibleList();
+            }
+        }
+        
+    }else if(mergeDivisionStep == 2){
+        mergeDivide();
+    }
+}
+
+function mergeSetRelevant(){
+    let endStart = mergeStartsEnds[mergeStartsEnds.length - 1];
+    mergeStart = endStart[0];
+    mergeEnd = endStart[1];
+    mergeDefaultAll();
+    addStep("Consider nodes "  + (mergeStart + 1)  + " to " + (mergeEnd) + ". Set them all to \"relevant\"");
+
+    for(let q = mergeStart; q < mergeEnd; q++){
+        setClass(nodes[q], 2, "Relevant");      //set all nodes in the sublist to "relevant"
+    }
+
+    mergeDivisionStep++;
+}
+
+function mergePrepareMerging(){
+    let endStart = mergeStartsEnds[mergeStartsEnds.length - 1];
+    mergeStart = endStart[0];
+    mergeEnd = endStart[1];
+    mergeMiddle = Math.floor((mergeStart + mergeEnd) / 2);
+
+    addStep("Left nodes " + (mergeStart + 1) + " to " + mergeMiddle + " and right nodes " + (mergeMiddle + 1 ) + " to " + mergeEnd + " are sorted. Prepare to merge left and right.");
+    
+    for(let q = mergeStart; q < mergeMiddle; q++){
+        setClass(nodes[q], 2, "Special");       //set all left nodes to proper color. Don't worry about right, as those are already colored
+    }
+
+    for(let q = mergeMiddle; q < mergeEnd; q++){
+        setClass(nodes[q], 2, "Current"); 
+    }
+
+    mergingStep = 2;
+}
+
+function mergeSetIndexes(){
+    addStep("Set Step " + (mergeStart + 1) + " as \"Left Index\" and " + (mergeMiddle + 1) + " as \"Right Index\".");
+    setClass(nodes[mergeStart], 2, "Index");        // set the first left node as left index color
+    setClass(nodes[mergeMiddle], 2, "Combined");        // set the first right node as left index color
+    mergingStep = 3;
+    mergeLeftIndex = mergeStart;
+    mergeRightIndex = mergeMiddle;
+}
+
+function mergeSublists(){
+
+    //Both sublists have been fully entered
+    if(mergeLeftIndex == mergeMiddle && mergeRightIndex == mergeEnd){
+        addStep("Both the left and right nodes have all been added onto the invisible array");
+        mergingStep = 4;
+        return;
+    }
+
+    //left sublist is exhausted, but not the right
+    if(mergeLeftIndex == mergeMiddle){
+        mergeInvisibleArray.push(orderArray[mergeRightIndex]);
+        setClass(nodes[mergeRightIndex++], 2, "Current");
+        addStep("The Left nodes have all been added to the invisible subarray. Add Right Index Node " +  mergeRightIndex + " to the invisible array.")
+        
+        if(mergeRightIndex != mergeEnd){                //set a new right index if neede
+            setClass(nodes[mergeRightIndex], 2, "Combined");
+        }
+
+        return;
+    }
+
+    //right sublist is exhausted, but not the left
+    if(mergeRightIndex == mergeEnd){
+        mergeInvisibleArray.push(orderArray[mergeLeftIndex]);
+        setClass(nodes[mergeLeftIndex++], 2, "Special");
+        addStep("The Right nodes have all been added to the invisible subarray. Add Left Index Node " +  mergeLeftIndex + " to the invisible array.")
+        if(mergeLeftIndex != mergeMiddle){              //set a new left index if needed
+            setClass(nodes[mergeLeftIndex], 2, "Index");
+        }
+
+        return;
+    }
+
+    //neither sublist is empty
+
+    if(orderArray[mergeLeftIndex] > orderArray[mergeRightIndex]){   //left node is bigger
+        mergeInvisibleArray.push(orderArray[mergeRightIndex]);
+        setClass(nodes[mergeRightIndex++], 2, "Current");
+        addStep("The Left index node is greater than the right index node. Add Right Index Node " +  mergeRightIndex + " to the invisible array.")
+        if(mergeRightIndex != mergeEnd){                //set a new right index if neede
+            setClass(nodes[mergeRightIndex], 2, "Combined");
+        }
+    }else{      //right node is bigger
+        mergeInvisibleArray.push(orderArray[mergeLeftIndex]);
+        setClass(nodes[mergeLeftIndex++], 2, "Special");
+        addStep("The Right Index node is greater than or equal to the Left Index Node. Add Left Index Node " +  mergeLeftIndex + " to the invisible array.")
+        if(mergeLeftIndex != mergeMiddle){              //set a new left index if needed
+            setClass(nodes[mergeLeftIndex], 2, "Index");
+        }
+
+        return;
+    }
+
+}
+
+function mergeCopyFromInvsibleList(){
+
+    //we have copied every list
+    if(mergeInvisibleArray.length == 0){
+        addStep("All nodes have been copied from the invisible array");
+        mergeDivisionStep = 1;
+        mergingStep = 1;
+        mergeJustSorted =  mergeStartsEnds.pop()[2];
+
+        if(mergeStartsEnds.length == 0){
+            endMerge();
+        }
+        return;
+    }
+    let num = mergeInvisibleArray.shift()
+
+    let sizeClass = "s" + (num + 1);
+    
+    orderArray[mergeStart] = num;
+    setClass(nodes[mergeStart], 1, sizeClass);
+    setClass(nodes[mergeStart++], 2, "Sorted");
+}
+
+function mergeDivide(){
+    //There is only one node here
+    if(mergeStart == mergeEnd -1){
+        mergeJustSorted = mergeStartsEnds.pop()[2];
+
+        addStep("The relvant nodes are sorted. Set node " + (mergeStart + 1) + " as \"" + mergeJustSorted + "\".");
+
+        if(mergeJustSorted == "left"){
+            setClass(nodes[mergeStart], 2, "Special");
+        }else if(mergeJustSorted == "right"){
+            setClass(nodes[mergeStart], 2, "Current");
+        }
+
+        
+
+    }else{
+        mergeMiddle = Math.floor((mergeStart + mergeEnd)/2);
+
+        addStep("The relevant nodes have not been merge sorted. Set nodes " + (mergeStart + 1) + " to " + mergeMiddle + " as \"left\", and nodes " + (mergeMiddle + 1) + " to " + mergeEnd + " as \"right\".");
+
+        for(let q = mergeStart; q < mergeMiddle; q++){
+            setClass(nodes[q], 2, "Special");
+        }
+
+        for(let q = mergeMiddle; q < mergeEnd; q++){
+            setClass(nodes[q], 2, "Current");
+        }
+
+        mergeStartsEnds.push([mergeMiddle, mergeEnd, "right"]);
+        mergeStartsEnds.push([mergeStart, mergeMiddle, "left"]);
+        
+    }
+
+    mergeDivisionStep = 1;
+}
+
+
+//Sets all nodes to the default color
+function mergeDefaultAll(){
+    for(let q = 0; q < numNodes; q++){
+        setClass(nodes[q], 2, "Default");
+    }
+}
+
+function endMerge(){
+    clearInterval(wait);
+    addStep("The list is now sorted");
+    randomizeButton.disabled = false;
+    sortSelector.disabled = false;
+}
+
+
 //Helper Methods
 //Helper Methods
 //Helper Methods
@@ -1376,6 +1637,7 @@ function resetStarted(){
     bogoStarted = false;
     quickStarted = false;
     heapStarted = false;
+    mergeStarted = false;
 }
 
 function resetColor(){
@@ -1411,7 +1673,7 @@ const SelectionExplanation = "<p>Selection sort works by iterating through each 
 const QuickExplanation = "<p>Quick sort works by setting the end element as a \"pivot\" and all Nodes as \"Relevant\" and then seperating the list into two sublists, one larger than the pivot, and one smaller. Then switch the pivot with the first larger array, then that Node is now sorted.</p> <p> We then do a mini sort with each sublist, setting the last element of each sublist as \"pivot\" and each other element as \"relevant\", then seperating them like before, creating up to 2 more sublists. Repeat for each subgroup until each subgroup is only one or zero element large, and we have a sorted list. <p><strong>Color Key:</strong></p> <p class = \"Current\">Pivot</p> <p class = \"Relevant\">Relevant</p> <p class = \"Index\">Index</p> <p class = \"Combined\">Smaller</p> <p class = \"Special\">Larger</p> <p class = \"Sorted\">Sorted</p>"
 const BubbleExplanation = "<p>Bubble sort works by setting the first element as the main element and comparing it to the next. If the element is larger than the next, switch. Otherwise, set the next element as the main elment. Repeat until the main elment is at the end of the list (the largest is now the larges). Repeat for each element</p>  <p>We start by setting the first node as \"Current\" and the second Node as \"Next\". If \"Next\" is smaller than \"Current\", we swap the two. Then set 2 as \"Current\" and 3 as \"Next\". Repeat Until \"Next\" has reached the end of the unsorted nodes. That Node is now sorted. Repeat the process until each node has been moved to it's proper place, or we iterate through the list without any swaps.<p/>  <p><strong>Color Key:</strong></p> <p class = \"Current\">Current</p> <p class = \"Special\">Next</p> <p class = \"Sorted\">Sorted</p>";
 const InsertionExplation = "<p>Insertion sort works by taking an already sorted array at the start (An array of One is sorted), and swapping the next element with the next largest sorted element until the next element is in the proper order. Repeat for each element.</p> <p>We start by setting the first Node as \"semi-sorted\". We then set the second Node as \"Current\" and the first node as \"prev\". If \"current\" is smaller than \"prev\", then switch. Then, set the third node as \"current\" and the second node as prev, and so on. Each time, swap \"current\" and \"prev\" until we either reach the start of the list or a smaller node in the semi sorted lsit. Then, that node is also sem-sorted. </p> <p><Strong>Color Key:</Strong></p> <p class = \"Special\">Prev</p> <p class = \"Current\">Current</p> <p class = \"Sorted\">Semi-Sorted</p>"
-const MergeExplanation = "<p>Merge sort works by breaking each half of the list into a sorted array. We then add the smallest element from each subarray into a new array, repeating until both subarrays are exhausted. We then copy each element in order from the new array to the old array.</p>";
+const MergeExplanation = "<p> Merge sorts requires two sorted lists. We set an index at the start of each list. We compare the two indexes, and the smaller index gets added onto an invisible array, and that lists index increments up. Repeat until one index is outside of it's list, then add all of the remaining nodes from the other list onto the invisible array. </p> <p> After that, we copy each node from the invsible array, and we now have a sorted list. </p> <p> In order to use mergesort on a completely random array, break the node into two sub lists, left and right. Then set the left list as \"relevant\", and divide again and againn, until we only have one list in both its sublist. A list with onlye one elment is sorted, so we can merge the lists. Keep creating sorted lists until the entire left list is sorted, then repeat with the right, before finally merging both left and right together to complete the sort.</p> <p><Strong>Color Key:</Strong></p> <p class = \"Current\">Right</p> <p class = \"Special\">Left</p> <p class = \"Relevant\">Relevant</p> <p class = \"Index\">Left Index</p> <p class = \"Combined\">Right Index</p> <p class = \"Sorted\">Sorted</p>";
 const HeapExplanation = "<p> Heap sort works by converting the list into a maximum heap. </p> <p> A maximum heap is a type of tree data structure. Each \"Node\" has a value, and up to 2 branches. A maximum heap is a special type of tree, where the first node is the largest Node, and both of it's branches are also maximum heaps. In other words, each node is larger than the ones below it </p> <p> The heap in this case is represented by an array. Node 1 is the \"root\", and you can find the branches of each node with the equation 2n + 1 and 2n, where n is it's own node number. If a result is larger than 10, it doesn't have a branch on that side. conversly, a Node's parents, except for Node 1, can be found by dividing by 2 and rounding down. </p> <p> We start by declaring Node one to be a heap. We then add Node 2 to the heap and setting it to current. Since this is node 2, it is Node one's branch. At this point, the heap may not be a valid maximum heap anymore. Fix it by switching the newly added node with its parents until its parent is larger or it has become Node 1. Repeat for every node, and we now have a maximum heap. </p> <p> We then swap the first (largest) Node with the last element in the Node, and remove the last node from the heap. The new last node is now sorted. At this point, the heap may no longer be valid. So, we must swap Node 0, which we set as current, with it's largest branch until it's larger than both its branches or it has no branches. Repeat until the heap is empty, and we will have a sorted array </p> <p><strong>Color Key:</strong></p> <p class=\"Current\">Current</p> <p class=\"Relevant\">Heap</p> <p class=\"Special\">Parent or Branch</p> <p class=\"Sorted\">Sorted</p>";
 const BogoExplanation = "<p>You're crazy</p>";
 
