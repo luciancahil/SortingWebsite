@@ -1396,6 +1396,7 @@ function addStep(step){
     let oldSteps = steps.innerHTML;            //explnation before adding anything
     let append =  "<p>" + stepNum++ + ". " +step + "</p>";            //what will be added in proper html format
     steps.innerHTML = oldSteps + append;       //adds the text onto the old file.
+    steps.scrollTop = steps.scrollHeight;
 }
 
 
