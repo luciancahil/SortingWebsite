@@ -117,7 +117,7 @@ function findSort(){
             insertionSort();
             break;
         case "Merge":
-            selectionSort();
+            mergeSort();
             break;
         case "Heap":
             heapSort();
@@ -153,7 +153,7 @@ function findStep(){
                 runInsertionStep();
                 break;
             case "Merge":
-                runSelectionSteps();
+                runMergeStep();
                 break;
             case "Heap":
                 runHeapStep();
@@ -1230,6 +1230,145 @@ function heapEnd(){
 
 
 
+/*
+
+MergeSort
+MergeSort
+MergeSort
+MergeSort
+MergeSort
+v
+MergeSort
+MergeSort
+vMergeSort
+MergeSort
+MergeSort
+MergeSort
+MergeSort
+
+Left = "Special"
+Right = "Current"
+
+Leftindex: "Index"
+RightIndex: "Combined"
+*/
+
+
+var mergeStart;                     //start of the minisort
+var mergeEnd;                       //end of the minisort
+var mergeMiddle;                    //center of the minisort
+var mergeDivideStep;
+var mergeEndsStarts = [];               //stack to store the starts and ends of each subbaray
+var mergeSetLeft;
+var mergedArray = [];               //Array we will coppy arrays to in order
+
+var leftSorted;
+var rightSorted;
+
+var mergeStarted = false;
+
+
+function mergeBegin(){
+    mergeSetLeft = true;
+    mergeStart = 0;
+    mergeDivideStep = 1;
+    mergeEnd = numNodes;
+    mergeStarted = true;
+    mergeMiddle = numNodes/2;
+    leftSorted = false;
+    rightSorted = false;
+}
+
+
+function runMergeStep(){
+    if(!mergeStarted){
+        mergeBegin();
+    }
+
+    mergeStep();
+}
+
+function mergeSort(){
+    if(!mergeStarted){
+        mergeBegin();
+    }
+
+    mergeStep();
+}
+
+
+function mergeStep(){
+    if(mergeDivideStep == 1){
+    mergeDivide();
+    }else if (mergeDivideStep == 2){
+        mergeSetEnds();
+    }
+}
+
+
+//sets the colors of a divide, and adds the ends of the list to a stack
+function mergeDivide(){
+    mergeResetColors();
+    addStep("Set Nodes " + (mergeStart + 1) + " to " + (mergeMiddle) + " as \"Left\" and Nodes " + (mergeMiddle + 1) + " to " + (mergeEnd) +  " as \"Right\".");
+
+    for(let r = mergeStart; r < mergeMiddle; r++){
+        setClass(nodes[r], 2, "Special");
+    }
+
+    for(let r = mergeMiddle; r < mergeEnd; r++){
+        setClass(nodes[r], 2, "Current");
+    }
+
+    //add the right first so left comes out first (LIFO)
+    let startEnd = [mergeMiddle, mergeEnd - 1];
+    mergeEndsStarts.push(startEnd);
+    startEnd = [mergeStart, mergeMiddle];
+    mergeEndsStarts.push(startEnd);
+    
+    mergeDivideStep++;
+}
+
+function mergeSetEnds(){
+    let startsAndEnds = mergeEndsStarts[mergeEndsStarts.length -1];
+    mergeStart = startsAndEnds[0];
+    mergeEnd = startsAndEnds[1];
+    mergeMiddle = Math.floor((mergeStart + mergeEnd)/2);
+
+    if(mergeSetLeft){
+        if(mergeStart == mergeMiddle){
+            addStep("The left nodes are merge-sorted");
+            alert(mergeEndsStarts.pop());
+            mergeSetLeft = false;
+        }else{
+            addStep("The Left Nodes have not been merge-sorted");
+            mergeDivideStep = 1;
+            return;
+        }
+    }else{
+        if(mergeMiddle == mergeEnd){
+            addStep("The right nodes are merge-sorted");
+            alert(mergeEndsStarts.pop());
+        }else{
+            addStep("The right nodes have not been merge-sorted");
+            mergeDivideStep = 1;
+            return;
+        }
+    }
+}
+
+function mergeResetColors(){
+    for(let q = 0; q < numNodes; q++){
+        setClass(nodes[q], 2, "Default");
+    }
+}
+
+
+function mergeFinish(){
+    sortSelector.disabled = false;
+    randomizeButton.disabled = false;
+    done = true;
+}
+
 //Helper Methods
 //Helper Methods
 //Helper Methods
@@ -1376,6 +1515,7 @@ function resetStarted(){
     bogoStarted = false;
     quickStarted = false;
     heapStarted = false;
+    mergeStarted = false;
 }
 
 function resetColor(){
