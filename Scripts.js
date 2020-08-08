@@ -1268,11 +1268,14 @@ var mergeLeftIndex;             //Indexes of we compare to each other to see wha
 var mergeRightIndex;
 
 var mergeInvisibleArray;        //Array that stores recently merged items
+//var mergeInvisibleIndex;        //Index that tells us witch height to copy from the invisible array
+
 
 function mergeBegin(){
     mergeDivisionStep = 1;
     mergeStarted = true;
     mergeStartsEnds = [];
+    mergeInvisibleArray = [];
     mergeStartsEnds.push([0, numNodes, "left"])         //left because no further sorts are needed
     mergeJustSorted = "left";
     orderArray = getOrder();
@@ -1302,6 +1305,8 @@ function mergeSteps(){
                 mergeSetIndexes();
             }else if(mergingStep == 3){
                 mergeSublists();
+            }else if(mergingStep == 4){
+                mergeCopyFromInvsibleList();
             }
         }
         
@@ -1359,8 +1364,10 @@ function mergeSublists(){
 
     //left sublist is exhausted, but not the right
     if(mergeLeftIndex == mergeMiddle){
+        mergeInvisibleArray.push(orderArray[mergeRightIndex]);
         setClass(nodes[mergeRightIndex++], 2, "Current");
         addStep("The Left nodes have all been added to the invisible subarray. Add Right Index Node " +  mergeRightIndex + " to the invisible array.")
+        
         if(mergeRightIndex != mergeEnd){                //set a new right index if neede
             setClass(nodes[mergeRightIndex], 2, "Combined");
         }
@@ -1370,6 +1377,7 @@ function mergeSublists(){
 
     //right sublist is exhausted, but not the left
     if(mergeRightIndex == mergeEnd){
+        mergeInvisibleArray.push(orderArray[mergeLeftIndex]);
         setClass(nodes[mergeLeftIndex++], 2, "Special");
         addStep("The Right nodes have all been added to the invisible subarray. Add Left Index Node " +  mergeLeftIndex + " to the invisible array.")
         if(mergeLeftIndex != mergeMiddle){              //set a new left index if needed
@@ -1381,13 +1389,15 @@ function mergeSublists(){
 
     //neither sublist is empty
 
-    if(orderArray[mergeLeftIndex] > orderArray[mergeRightIndex]){
+    if(orderArray[mergeLeftIndex] > orderArray[mergeRightIndex]){   //left node is bigger
+        mergeInvisibleArray.push(orderArray[mergeRightIndex]);
         setClass(nodes[mergeRightIndex++], 2, "Current");
         addStep("The Left index node is greater than the right index node. Add Right Index Node " +  mergeRightIndex + " to the invisible array.")
         if(mergeRightIndex != mergeEnd){                //set a new right index if neede
             setClass(nodes[mergeRightIndex], 2, "Combined");
         }
-    }else{
+    }else{      //right node is bigger
+        mergeInvisibleArray.push(orderArray[mergeLeftIndex]);
         setClass(nodes[mergeLeftIndex++], 2, "Current");
         addStep("The Right Index node is greater than or equal to the Left Index Node. Add Left Index Node " +  mergeLeftIndex + " to the invisible array.")
         if(mergeLeftIndex != mergeMiddle){              //set a new left index if needed
@@ -1397,6 +1407,23 @@ function mergeSublists(){
         return;
     }
 
+}
+
+function mergeCopyFromInvsibleList(){
+
+    //we have copied every list
+    if(mergeInvisibleArray.length == 0){
+        addStep("All nodes have been copied from the invisible array");
+        mergeDivisionStep = 1;
+        mergingStep = 1;
+        mergeJustSorted =  mergeStartsEnds.pop()[2];
+        return;
+    }
+
+    let sizeClass = "s" + (mergeInvisibleArray.shift() + 1);
+    
+    setClass(nodes[mergeStart], 1, sizeClass);
+    setClass(nodes[mergeStart++], 2, "Sorted");
 }
 
 function mergeDivide(){
