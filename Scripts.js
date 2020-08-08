@@ -1248,11 +1248,65 @@ MergeSort
 
 Left = "Special"
 Right = "Current"
-
+Relevant = "Relevant"
 Leftindex: "Index"
 RightIndex: "Combined"
 */
 
+var mergeDivisionStep;           // dividing takes two steps. Setting the stage, and dividing if needed
+var mergeStarted = false;
+var mergeStart;                 //Start of th elist. The first left node
+var mergeEnd;                   //End of the sublist. One more than the last right NOde
+var mergeMiddle;                //Middle of the list. One more than the last left Node
+var mergeStartsEnds;            //a stack that contains all the ends and starts of teh submlists we must consider, in format (include, exclude)
+
+function mergeBegin(){
+    mergeDivisionStep = 1;
+    mergeStarted = true;
+    mergeStartsEnds = [];
+    mergeStartsEnds.push([0, numNodes])
+}
+
+
+function runMergeStep(){
+    if(!mergeStarted){
+        mergeBegin();
+    }
+
+    mergeSteps();
+}
+
+function mergeSteps(){
+    if(mergeDivisionStep == 1){
+        let endStart = mergeStartsEnds[mergeStartsEnds.length - 1];
+        mergeStart = endStart[0];
+        mergeEnd = endStart[1];
+        addStep("Consider nodes "  + (mergeStart + 1)  + " to " + (mergeEnd) + ". Set them all to \"relevant\"");
+
+        for(let q = mergeStart; q < mergeEnd; q++){
+            setClass(nodes[q], 2, "Relevant");      //set all nodes in the sublist to "relevant"
+        }
+
+        mergeDivisionStep++;
+    }else if(mergeDivisionStep == 2){
+        //There is only one node here
+        if(mergeStart == mergeEnd -1){
+            addStep("The relvant nodes are sorted");
+        }else{
+            mergeMiddle = (mergeStart + mergeEnd)/2
+
+            addStep("The relevant nodes have not been merge sorted. Set nodes " + (mergeStart + 1) + " to " + mergeMiddle + " as \"left\", and nodes " + (mergeMiddle + 1) + " to " + mergeEnd + " as \"right\".");
+        
+            for(let q = mergeStart; q < mergeMiddle; q++){
+                setClass(nodes[q], 2, "Special");
+            }
+
+            for(let q = mergeMiddle; q < mergeEnd; q++){
+                setClass(nodes[q], 2, "Current");
+            }
+        }
+    }
+}
 
 
 //Helper Methods
