@@ -952,25 +952,34 @@ Then, sink the new head to it's proper location
 Heap = "Relevant"
 Current = "Current"
 Parent = "Special"
+Larger Branch = "Parent";
 */
 var heapStarted = false;
 var makeHeapStep;               //making a heap has two distinct steps, adding a Node to the heap and swiming it up
 var numHeapNodes;               //the number of nodes in the heap properly
-var heapIndex;                  //The Node we are about/just added to the heap
+var heapSize;                  //The Node we are about/just added to the heap
 var currentHeapPosition;        //The position of the current Node
 var heapSwimStep;                   //Swimming takes two steps. Setting the parent and swapping if needed
 var heapParentIndex;            //Index of the parent of the current Node
 var heapOldPosition;                //The immediate previos position of the current Node. Helps for coloring
+var doneMakingHeap;             //are we done organizing the nodes into a heap?
+var sortHeapStep;               //Sorting a heap has 2 distinct steps, swapping the head node, and sinking the new head
+var heapLargerBranch;            //stores the index of the larger child
+var heapSinkStep;               //sinking has 2 distinct steps. Setting the larger branch, and switching
 
 
 function startHeap(){
     makeHeapStep = 1;
     numHeapNodes = 1;
     orderArray = getOrder();
-    heapIndex = 0;    
+    console.log(orderArray);
+    heapSize = 0;    
     heapStarted = true;
     heapSwimStep = 1;
     heapOldPosition = -1;
+    doneMakingHeap = false;
+    sortHeapStep = 1;
+    heapSinkStep = 1
 }
 
 function runHeapStep(){
@@ -978,7 +987,7 @@ function runHeapStep(){
         startHeap();
     }
 
-    makeHeap();
+    heapStep();
 }
 
 function heapSort(){
@@ -986,14 +995,120 @@ function heapSort(){
         startHeap();
     }
 
-    //makeHeap();
-    wait = setInterval(makeHeap, delay);
+    wait = setInterval(heapStep, delay);
+}
+
+function heapStep(){
+    if(!doneMakingHeap){
+        makeHeap();
+        return;
+    }
+
+    if(heapSize > 0){
+        sortHeap();
+        return;
+    }
+
+    heapEnd();
+}
+
+function sortHeap(){
+    //the list is now sorted
+    
+
+    //Swap the head with the last node in the heap. The head is now sorted
+    if(sortHeapStep == 1){
+        swapHeapHead();
+    }else if(sortHeapStep == 2){    //sink the head into it's proper place
+        if(heapSize == 2){
+            addStep("Node 1 is now sorted");
+            setClass(nodes[0], 2, "Sorted");
+            addStep("The List is now sorted");
+            heapEnd();
+            return;
+        }
+        
+        //Find the larger child branch
+        if(heapSinkStep == 1){          
+            heapSetLargerBranch();
+        }else if(heapSinkStep == 2){        //compare current to the larger child branch. Swap if need be
+            if(orderArray[currentHeapPosition] < orderArray[heapLargerBranch]){      //we must swap in this case.
+                addStep("Current Node " + (currentHeapPosition + 1) + " is smaller than it's larger branch node " + (heapLargerBranch + 1) + ". Swap the two nodes.");
+                numSwap(currentHeapPosition, heapLargerBranch);
+                swapArray(orderArray, currentHeapPosition, heapLargerBranch);
+                heapOldPosition = currentHeapPosition;
+                currentHeapPosition = heapLargerBranch;
+            }else{      //we don't have to swap
+                addStep("Current Node " + (currentHeapPosition + 1) +  " is greater than or equal to it's larger branch node " + (heapLargerBranch + 1) + ". Current Node is now in the heap proper.")
+                setClass(nodes[currentHeapPosition], 2, "Relevant");
+                setClass(nodes[heapLargerBranch], 2, "Relevant");
+                sinkNodeDone();
+            }
+
+            heapSinkStep = 1;
+        }
+    }
+
+    
+}
+
+function swapHeapHead(){
+    addStep("Swap Node 1 and the last heap Node " + heapSize + " and set the new Node 1 to \"current\". Node " + heapSize + " is now sorted.");
+    numSwap(0, heapSize - 1);      //swap the head with the last unsorted Node
+    swapArray(orderArray, 0, heapSize - 1);
+    setClass(nodes[heapSize -1], 2, "Sorted");
+    setClass(nodes[0], 2, "Current");
+    currentHeapPosition = 0;
+    sortHeapStep = 2;
+}
+
+function heapSetLargerBranch(){
+    if(heapOldPosition >= 0){
+        setClass(nodes[heapOldPosition], 2, "Relevant");//Sets the old place to the heap color
+    }
+
+    let childOne = currentHeapPosition * 2 + 1;
+    let childTwo = currentHeapPosition * 2 + 2;
+
+    //no branches
+    if(childOne >= heapSize - 1){
+        addStep("Current Node " + (currentHeapPosition + 1) + " has no branches. It is now in the heap proper");
+        setClass(nodes[currentHeapPosition], 2, "Relevant");
+        sinkNodeDone();
+        heapOldPosition = -1;
+        return;
+    }
+
+
+    //Only one index
+    if(childTwo >= heapSize - 1){
+        addStep("Compare Current Node " + (currentHeapPosition + 1) + " to its branch Node " + (childOne + 1) + ".")
+        setClass(nodes[childOne], 2, "Special");
+        heapLargerBranch = childOne;
+        heapOldPosition = -1;
+        heapSinkStep = 2;
+        return;
+    }
+
+    if(orderArray[childOne] > orderArray[childTwo]){    // The left child is larger. Set it to the right
+        heapLargerBranch = childOne;
+    }else{                                      //the right child is larger or even. Set it to the right (right if even because right height is either greater than or equal to left height)
+        heapLargerBranch = childTwo;
+    }
+
+    addStep("Compare Current Node " + (currentHeapPosition + 1) + " to its larger branch Node " + (heapLargerBranch + 1) + ".")
+    setClass(nodes[heapLargerBranch], 2, "Special");
+    heapSinkStep = 2;
+}
+
+//The node has sunk to it's correct position
+function sinkNodeDone(){
+    heapSize--;
+    sortHeapStep = 1;
 }
 
 //converts the array into a maximum heap
 function makeHeap(){
-
-    
 
     //add a node to a heap and set it to current
     if(makeHeapStep == 1){
@@ -1005,6 +1120,8 @@ function makeHeap(){
         if(currentHeapPosition == 0){
             setNodeOneHeap();
             heapSwimStep = 1;
+            
+            
             return;
         }
 
@@ -1014,7 +1131,7 @@ function makeHeap(){
             if(orderArray[currentHeapPosition] > orderArray[heapParentIndex]){      //we must swap
                 heapSwapWithParent();
             }else{              //do not swap. Node is now in the heap proper
-                setToHeapSwim();
+                setToHeap();
             }
             
             heapSwimStep = 1;
@@ -1022,20 +1139,19 @@ function makeHeap(){
     }
 
     //sorting is now done
-    if(heapIndex == 10){
-        heapEnd();
-        /*clearInterval(wait);
-        randomizeButton.disabled = false;
-        sortSelector.disabled = false;*/
+    if(heapSize == numNodes){
+        doneMakingHeap = true;
+        heapOldPosition = -1;
+        addStep("The heap is now complete.");
     }
 }
 
 
 //Adds the next node to heap and set it to current
 function heapAddNode(){
-    setClass(nodes[heapIndex], 2, "Current");      //set the first Node to the heap
-    currentHeapPosition = heapIndex;
-    addStep("Add Node " + (heapIndex + 1) + " to the heap and set it to \"current\".");
+    setClass(nodes[heapSize], 2, "Current");      //set the first Node to the heap
+    currentHeapPosition = heapSize;
+    addStep("Add Node " + (heapSize + 1) + " to the heap and set it to \"current\".");
     makeHeapStep = 2;
 }
 
@@ -1049,10 +1165,19 @@ function setNodeOneHeap(){
     }
 
     heapOldPosition = -1;
-    heapIndex++;
+    heapSize++;
     makeHeapStep = 1;
+
+    //checck if sorting is now done
+    if(heapSize == numNodes){
+        doneMakingHeap = true;
+        heapOldPosition = -1;
+        addStep("The heap is now complete.");
+    }
 }
 
+
+//Set the parent
 function heapSetParent(){
     if(heapOldPosition > 0){
         setClass(nodes[heapOldPosition], 2, "Relevant");       //set the old Node to the heap color
@@ -1076,19 +1201,25 @@ function heapSwapWithParent(){
     currentHeapPosition = heapParentIndex;
 }
 
-function setToHeapSwim(){
+
+//The Node is now in the proper place. Set it to be a part of the heap proper
+function setToHeap(){
     addStep("Current Node " + (currentHeapPosition + 1) + " is less than or equal to it's parent node " + (heapParentIndex + 1) + " the node is now in the heap proper.");
     setClass(nodes[heapParentIndex], 2, "Relevant");
     setClass(nodes[currentHeapPosition], 2, "Relevant");
-    heapIndex++;
+    heapSize++;
     makeHeapStep = 1;
 }
 
+//Done creating a heap
 function heapEnd(){
     clearInterval(wait);
     randomizeButton.disabled = false;
     sortSelector.disabled = false;
+    heapOldPosition = -1;
 }
+
+
 
 //Helper Methods
 //Helper Methods
@@ -1315,3 +1446,5 @@ delayInput.addEventListener('change', updateValue);
 function updateValue(){
     delay = this.value;
 }
+
+//8, 3, 1, 4, 7, 0, 6, 9, 2, 5
