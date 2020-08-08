@@ -120,7 +120,7 @@ function findSort(){
             selectionSort();
             break;
         case "Heap":
-            selectionSort();
+            heapSort();
             break;
         case "Bogo":
             bogoSort();
@@ -156,7 +156,7 @@ function findStep(){
                 runSelectionSteps();
                 break;
             case "Heap":
-                runSelectionSteps();
+                runHeapStep();
                 break;
             case "Bogo":
                 runBogoStep();
@@ -940,6 +940,296 @@ function quickSortEnd(){
     randomizeButton.disabled = false;
 }
 
+
+
+/*
+Heapsort first makes the array into a max-heap.
+
+Then, it switches the head with the first unsorted node. The head is now sorted.
+
+Then, sink the new head to it's proper location
+
+Heap = "Relevant"
+Current = "Current"
+Parent = "Special"
+Larger Branch = "Parent";
+*/
+var heapStarted = false;
+var makeHeapStep;               //making a heap has two distinct steps, adding a Node to the heap and swiming it up
+var numHeapNodes;               //the number of nodes in the heap properly
+var heapSize;                  //The Node we are about/just added to the heap
+var currentHeapPosition;        //The position of the current Node
+var heapSwimStep;                   //Swimming takes two steps. Setting the parent and swapping if needed
+var heapParentIndex;            //Index of the parent of the current Node
+var heapOldPosition;                //The immediate previos position of the current Node. Helps for coloring
+var doneMakingHeap;             //are we done organizing the nodes into a heap?
+var sortHeapStep;               //Sorting a heap has 2 distinct steps, swapping the head node, and sinking the new head
+var heapLargerBranch;            //stores the index of the larger child
+var heapSinkStep;               //sinking has 2 distinct steps. Setting the larger branch, and switching
+
+
+function startHeap(){
+    makeHeapStep = 1;
+    numHeapNodes = 1;
+    orderArray = getOrder();
+    console.log(orderArray);
+    heapSize = 0;    
+    heapStarted = true;
+    heapSwimStep = 1;
+    heapOldPosition = -1;
+    doneMakingHeap = false;
+    sortHeapStep = 1;
+    heapSinkStep = 1
+}
+
+function runHeapStep(){
+    if(!heapStarted){
+        startHeap();
+    }
+
+    heapStep();
+}
+
+function heapSort(){
+    if(!heapStarted){
+        startHeap();
+    }
+
+    wait = setInterval(heapStep, delay);
+}
+
+function heapStep(){
+    if(!doneMakingHeap){
+        makeHeap();
+        return;
+    }
+
+    if(heapSize > 0){
+        sortHeap();
+        return;
+    }
+
+    //heapEnd();
+}
+
+function sortHeap(){
+    if(sortHeapStep == 1){
+        //Swap the head with the last node in the heap. The head is now sorted
+        swapHeapHead();
+
+    //sink Node 0 into it's proper place
+    }else if(sortHeapStep == 2){    
+        if(heapSize == 2){
+            heapEnd();
+            return;
+        }
+        
+        //Find the larger child branch
+        if(heapSinkStep == 1){          
+            heapSetLargerBranch();
+
+        //compare current to the larger child branch. Swap if need be
+        }else if(heapSinkStep == 2){        
+            if(orderArray[currentHeapPosition] < orderArray[heapLargerBranch]){      //we must swap in this case.
+                heapSwapWithChild();
+            }else{      //we don't have to swap
+                heapIsLargerThanChild();
+            }
+
+            heapSinkStep = 1;
+        }
+    }
+
+    
+}
+
+function swapHeapHead(){
+    addStep("Swap Node 1 and the last heap Node " + heapSize + " and set the new Node 1 to \"current\". Node " + heapSize + " is now sorted.");
+    numSwap(0, heapSize - 1);      //swap the head with the last unsorted Node
+    swapArray(orderArray, 0, heapSize - 1);
+    setClass(nodes[heapSize -1], 2, "Sorted");
+    setClass(nodes[0], 2, "Current");
+    currentHeapPosition = 0;
+    sortHeapStep = 2;
+}
+
+function heapSetLargerBranch(){
+    if(heapOldPosition >= 0){
+        setClass(nodes[heapOldPosition], 2, "Relevant");//Sets the old place to the heap color
+    }
+
+    let childOne = currentHeapPosition * 2 + 1;
+    let childTwo = currentHeapPosition * 2 + 2;
+
+    //no branches
+    if(childOne >= heapSize - 1){
+        addStep("Current Node " + (currentHeapPosition + 1) + " has no branches. It is now in the heap proper");
+        setClass(nodes[currentHeapPosition], 2, "Relevant");
+        sinkNodeDone();
+        heapOldPosition = -1;
+        return;
+    }
+
+
+    //Only one branch
+    if(childTwo >= heapSize - 1){
+        addStep("Compare Current Node " + (currentHeapPosition + 1) + " to its branch Node " + (childOne + 1) + ".")
+        setClass(nodes[childOne], 2, "Special");
+        heapLargerBranch = childOne;
+        heapOldPosition = -1;
+        heapSinkStep = 2;
+        return;
+    }
+
+    if(orderArray[childOne] > orderArray[childTwo]){    // The left child is larger. Set it to the right
+        heapLargerBranch = childOne;
+    }else{                                      //the right child is larger or even. Set it to the right (right if even because right height is either greater than or equal to left height)
+        heapLargerBranch = childTwo;
+    }
+
+    addStep("Compare Current Node " + (currentHeapPosition + 1) + " to its larger branch Node " + (heapLargerBranch + 1) + ".")
+    setClass(nodes[heapLargerBranch], 2, "Special");
+    heapSinkStep = 2;
+}
+
+function heapSwapWithChild(){
+    addStep("Current Node " + (currentHeapPosition + 1) + " is smaller than it's larger branch node " + (heapLargerBranch + 1) + ". Swap the two nodes.");
+    numSwap(currentHeapPosition, heapLargerBranch);
+    swapArray(orderArray, currentHeapPosition, heapLargerBranch);
+    heapOldPosition = currentHeapPosition;
+    currentHeapPosition = heapLargerBranch;
+}
+
+function heapIsLargerThanChild(){
+    addStep("Current Node " + (currentHeapPosition + 1) +  " is greater than or equal to it's larger branch node " + (heapLargerBranch + 1) + ". Current Node is now in the heap proper.")
+    setClass(nodes[currentHeapPosition], 2, "Relevant");
+    setClass(nodes[heapLargerBranch], 2, "Relevant");
+    sinkNodeDone();
+}
+
+//The node has sunk to it's correct position
+function sinkNodeDone(){
+    heapSize--;
+    sortHeapStep = 1;
+}
+
+//converts the array into a maximum heap
+function makeHeap(){
+
+    //add a node to a heap and set it to current
+    if(makeHeapStep == 1){
+        heapAddNode();
+        return;
+    }else if(makeHeapStep == 2){        //Swim the node up if needed
+
+        //We are at the start of the heap. No more swimming possible
+        if(currentHeapPosition == 0){
+            setNodeOneHeap();
+            heapSwimStep = 1;
+            
+            
+            return;
+        }
+
+        if(heapSwimStep == 1){      //set the parent Node
+            heapSetParent();
+        }else if(heapSwimStep == 2){        //compare to the parent Node
+            if(orderArray[currentHeapPosition] > orderArray[heapParentIndex]){      //we must swap
+                heapSwapWithParent();
+            }else{              //do not swap. Node is now in the heap proper
+                setToHeap();
+            }
+            
+            heapSwimStep = 1;
+        }
+    }
+
+    //sorting is now done
+    if(heapSize == numNodes){
+        doneMakingHeap = true;
+        heapOldPosition = -1;
+        addStep("The heap is now complete.");
+    }
+}
+
+
+//Adds the next node to heap and set it to current
+function heapAddNode(){
+    setClass(nodes[heapSize], 2, "Current");      //set the first Node to the heap
+    currentHeapPosition = heapSize;
+    addStep("Add Node " + (heapSize + 1) + " to the heap and set it to \"current\".");
+    makeHeapStep = 2;
+}
+
+//set the first node to be properly heaped
+function setNodeOneHeap(){
+    addStep("Node 1 has no parent branches. Node 1 is now in the heap proper.");
+    setClass(nodes[0], 2, "Relevant");       //set the Node to the heap color
+    
+    if(heapOldPosition > 0){
+        setClass(nodes[heapOldPosition], 2, "Relevant");       //set the old Node to the heap color
+    }
+
+    heapOldPosition = -1;
+    heapSize++;
+    makeHeapStep = 1;
+
+    //checck if sorting is now done
+    if(heapSize == numNodes){
+        doneMakingHeap = true;
+        heapOldPosition = -1;
+        addStep("The heap is now complete.");
+    }
+}
+
+
+//Set the parent
+function heapSetParent(){
+    if(heapOldPosition > 0){
+        setClass(nodes[heapOldPosition], 2, "Relevant");       //set the old Node to the heap color
+    }
+
+    heapParentIndex = Math.floor((currentHeapPosition - 1)/2);
+    setClass(nodes[heapParentIndex], 2, "Special");
+    addStep("Compare current node " + (currentHeapPosition + 1) + " to it's parent Node " + (heapParentIndex + 1) + ".");
+    heapSwimStep = 2;
+}
+
+function heapSwapWithParent(){
+    if(heapOldPosition > 0){
+        setClass(nodes[heapOldPosition], 2, "Relevant"); // set the old node to heap color
+    }
+
+    numSwap(currentHeapPosition, heapParentIndex);          //swaps the current node with it's parent
+    swapArray(orderArray, currentHeapPosition, heapParentIndex);
+    addStep("Current Node " + (currentHeapPosition + 1) + " is larger than it's parent node " + (heapParentIndex + 1) + ". Swap the nodes.");
+    heapOldPosition = currentHeapPosition;
+    currentHeapPosition = heapParentIndex;
+}
+
+
+//The Node is now in the proper place. Set it to be a part of the heap proper
+function setToHeap(){
+    addStep("Current Node " + (currentHeapPosition + 1) + " is less than or equal to it's parent node " + (heapParentIndex + 1) + " the node is now in the heap proper.");
+    setClass(nodes[heapParentIndex], 2, "Relevant");
+    setClass(nodes[currentHeapPosition], 2, "Relevant");
+    heapSize++;
+    makeHeapStep = 1;
+}
+
+//Done creating a heap
+function heapEnd(){
+    addStep("Node 1 is now sorted");
+    setClass(nodes[0], 2, "Sorted");
+    addStep("The List is now sorted");
+    clearInterval(wait);
+    randomizeButton.disabled = false;
+    sortSelector.disabled = false;
+    heapOldPosition = -1;
+}
+
+
+
 //Helper Methods
 //Helper Methods
 //Helper Methods
@@ -958,8 +1248,8 @@ function quickSortEnd(){
 
 
 /*
-This function switches the class of a node to a new slected one
-
+This function switches the class of a node to a new slected one. If index is one, it will change the size of the node. 
+If the index is two, it will change the color
 
 @param node: the node whoes class I want to change
 @param index: the index of the class I want to change
@@ -1085,6 +1375,7 @@ function resetStarted(){
     insertionStarted = false;
     bogoStarted = false;
     quickStarted = false;
+    heapStarted = false;
 }
 
 function resetColor(){
@@ -1120,7 +1411,7 @@ const QuickExplanation = "<p>Quick sort works by setting the end element as a \"
 const BubbleExplanation = "<p>Bubble sort works by setting the first element as the main element and comparing it to the next. If the element is larger than the next, switch. Otherwise, set the next element as the main elment. Repeat until the main elment is at the end of the list (the largest is now the larges). Repeat for each element</p>  <p>We start by setting the first node as \"Current\" and the second Node as \"Next\". If \"Next\" is smaller than \"Current\", we swap the two. Then set 2 as \"Current\" and 3 as \"Next\". Repeat Until \"Next\" has reached the end of the unsorted nodes. That Node is now sorted. Repeat the process until each node has been moved to it's proper place, or we iterate through the list without any swaps.<p/>  <p><strong>Color Key:</strong></p> <p class = \"Current\">Current</p> <p class = \"Special\">Next</p> <p class = \"Sorted\">Sorted</p>";
 const InsertionExplation = "<p>Insertion sort works by taking an already sorted array at the start (An array of One is sorted), and swapping the next element with the next largest sorted element until the next element is in the proper order. Repeat for each element.</p> <p>We start by setting the first Node as \"semi-sorted\". We then set the second Node as \"Current\" and the first node as \"prev\". If \"current\" is smaller than \"prev\", then switch. Then, set the third node as \"current\" and the second node as prev, and so on. Each time, swap \"current\" and \"prev\" until we either reach the start of the list or a smaller node in the semi sorted lsit. Then, that node is also sem-sorted. </p> <p><Strong>Color Key:</Strong></p> <p class = \"Special\">Prev</p> <p class = \"Current\">Current</p> <p class = \"Sorted\">Semi-Sorted</p>"
 const MergeExplanation = "<p>Merge sort works by breaking each half of the list into a sorted array. We then add the smallest element from each subarray into a new array, repeating until both subarrays are exhausted. We then copy each element in order from the new array to the old array.</p>";
-const HeapExplanation = "<p>Heap sort works by converting the list into a maximum heap. We then swap the first (largest) element with the last, remove the last element from the heap into the next spot of the sorted array, and then sink the new first element of the heap until we have a valid heap again. Repeat until the heap is empty.</p>";
+const HeapExplanation = "<p> Heap sort works by converting the list into a maximum heap. </p> <p> A maximum heap is a type of tree data structure. Each \"Node\" has a value, and up to 2 branches. A maximum heap is a special type of tree, where the first node is the largest Node, and both of it's branches are also maximum heaps. In other words, each node is larger than the ones below it </p> <p> The heap in this case is represented by an array. Node 1 is the \"root\", and you can find the branches of each node with the equation 2n + 1 and 2n, where n is it's own node number. If a result is larger than 10, it doesn't have a branch on that side. conversly, a Node's parents, except for Node 1, can be found by dividing by 2 and rounding down. </p> <p> We start by declaring Node one to be a heap. We then add Node 2 to the heap and setting it to current. Since this is node 2, it is Node one's branch. At this point, the heap may not be a valid maximum heap anymore. Fix it by switching the newly added node with its parents until its parent is larger or it has become Node 1. Repeat for every node, and we now have a maximum heap. </p> <p> We then swap the first (largest) Node with the last element in the Node, and remove the last node from the heap. The new last node is now sorted. At this point, the heap may no longer be valid. So, we must swap Node 0, which we set as current, with it's largest branch until it's larger than both its branches or it has no branches. Repeat until the heap is empty, and we will have a sorted array </p> <p><strong>Color Key:</strong></p> <p class=\"Current\">Current</p> <p class=\"Relevant\">Heap</p> <p class=\"Special\">Parent or Branch</p> <p class=\"Sorted\">Sorted</p>";
 const BogoExplanation = "<p>You're crazy</p>";
 
 sortSelector.addEventListener('change', updateExplain);
@@ -1164,3 +1455,5 @@ delayInput.addEventListener('change', updateValue);
 function updateValue(){
     delay = this.value;
 }
+
+//8, 3, 1, 4, 7, 0, 6, 9, 2, 5
