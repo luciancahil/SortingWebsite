@@ -1282,6 +1282,14 @@ function mergeBegin(){
     mergingStep = 1;
 }
 
+function mergeSort(){
+    if(!mergeStarted){
+        mergeBegin();
+    }
+
+    wait = setInterval(mergeSteps, delay);
+}
+
 
 function runMergeStep(){
     if(!mergeStarted){
@@ -1421,6 +1429,10 @@ function mergeCopyFromInvsibleList(){
         mergeDivisionStep = 1;
         mergingStep = 1;
         mergeJustSorted =  mergeStartsEnds.pop()[2];
+
+        if(mergeStartsEnds.length == 0){
+            endMerge();
+        }
         return;
     }
     let num = mergeInvisibleArray.shift()
@@ -1474,6 +1486,13 @@ function mergeDefaultAll(){
     for(let q = 0; q < numNodes; q++){
         setClass(nodes[q], 2, "Default");
     }
+}
+
+function endMerge(){
+    clearInterval(wait);
+    addStep("The list is now sorted");
+    randomizeButton.disabled = false;
+    sortSelector.disabled = false;
 }
 
 
