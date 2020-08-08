@@ -1268,6 +1268,7 @@ function mergeBegin(){
     mergeStarted = true;
     mergeStartsEnds = [];
     mergeStartsEnds.push([0, numNodes, "left"])         //left because no further sorts are needed
+    mergeJustSorted = "left";
 }
 
 
@@ -1281,7 +1282,15 @@ function runMergeStep(){
 
 function mergeSteps(){
     if(mergeDivisionStep == 1){
-        mergeSetRelevant();
+        //look at the next list
+        if(mergeJustSorted == "left"){
+            mergeSetRelevant();
+
+        //prepare the next list for merging
+        }else{
+            mergePrepareMerging();
+        }
+        
     }else if(mergeDivisionStep == 2){
         mergeDivide();
     }
@@ -1299,6 +1308,19 @@ function mergeSetRelevant(){
     }
 
     mergeDivisionStep++;
+}
+
+function mergePrepareMerging(){
+    let endStart = mergeStartsEnds[mergeStartsEnds.length - 1];
+    mergeStart = endStart[0];
+    mergeEnd = endStart[1];
+    mergeMiddle = Math.floor((mergeStart + mergeEnd) / 2);
+
+    addStep("Left nodes " + (mergeStart + 1) + " to " + mergeMiddle + " and right nodes " + (mergeMiddle + 1 ) + " to " + mergeEnd + " are sorted. Prepare to merge left and right.");
+    
+    for(let q = mergeStart; q < mergeMiddle; q++){
+        setClass(nodes[q], 2, "Special");       //set all left nodes to proper color. Don't worry about right, as those are already colored
+    }
 }
 
 function mergeDivide(){
