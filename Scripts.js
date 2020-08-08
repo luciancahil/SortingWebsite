@@ -1258,13 +1258,16 @@ var mergeStarted = false;
 var mergeStart;                 //Start of th elist. The first left node
 var mergeEnd;                   //End of the sublist. One more than the last right NOde
 var mergeMiddle;                //Middle of the list. One more than the last left Node
-var mergeStartsEnds;            //a stack that contains all the ends and starts of teh submlists we must consider, in format (include, exclude)
+var mergeStartsEnds;            //a stack that contains all the ends and starts of teh submlists we must consider, in format (include, exclude). 
+                                // The third element is whether this was a left or right subbaray, as we must merge after sorting a right array
+
+var mergeJustSorted;            //Whether what we just sorted was left or right
 
 function mergeBegin(){
     mergeDivisionStep = 1;
     mergeStarted = true;
     mergeStartsEnds = [];
-    mergeStartsEnds.push([0, numNodes])
+    mergeStartsEnds.push([0, numNodes, "left"])         //left because no further sorts are needed
 }
 
 
@@ -1288,6 +1291,7 @@ function mergeSetRelevant(){
     let endStart = mergeStartsEnds[mergeStartsEnds.length - 1];
     mergeStart = endStart[0];
     mergeEnd = endStart[1];
+    mergeDefaultAll();
     addStep("Consider nodes "  + (mergeStart + 1)  + " to " + (mergeEnd) + ". Set them all to \"relevant\"");
 
     for(let q = mergeStart; q < mergeEnd; q++){
@@ -1300,7 +1304,18 @@ function mergeSetRelevant(){
 function mergeDivide(){
     //There is only one node here
     if(mergeStart == mergeEnd -1){
-        addStep("The relvant nodes are sorted");
+        mergeJustSorted = mergeStartsEnds.pop()[2];
+
+        addStep("The relvant nodes are sorted. Set node " + (mergeStart + 1) + " as \"" + mergeJustSorted + "\".");
+
+        if(mergeJustSorted == "left"){
+            setClass(nodes[mergeStart], 2, "Special");
+        }else if(mergeJustSorted == "right"){
+            setClass(nodes[mergeStart], 2, "Current");
+        }
+
+        
+
     }else{
         mergeMiddle = Math.floor((mergeStart + mergeEnd)/2);
 
@@ -1314,9 +1329,19 @@ function mergeDivide(){
             setClass(nodes[q], 2, "Current");
         }
 
-        mergeStartsEnds.push([mergeMiddle, mergeEnd]);
-        mergeStartsEnds.push([mergeStart, mergeMiddle]);
-        mergeDivisionStep = 1;
+        mergeStartsEnds.push([mergeMiddle, mergeEnd, "right"]);
+        mergeStartsEnds.push([mergeStart, mergeMiddle, "left"]);
+        
+    }
+
+    mergeDivisionStep = 1;
+}
+
+
+//Sets all nodes to the default color
+function mergeDefaultAll(){
+    for(let q = 0; q < numNodes; q++){
+        setClass(nodes[q], 2, "Default");
     }
 }
 
