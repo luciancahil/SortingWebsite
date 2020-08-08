@@ -120,7 +120,7 @@ function findSort(){
             selectionSort();
             break;
         case "Heap":
-            selectionSort();
+            heapSort();
             break;
         case "Bogo":
             bogoSort();
@@ -156,7 +156,7 @@ function findStep(){
                 runSelectionSteps();
                 break;
             case "Heap":
-                runSelectionSteps();
+                runHeapStep();
                 break;
             case "Bogo":
                 runBogoStep();
@@ -940,6 +940,156 @@ function quickSortEnd(){
     randomizeButton.disabled = false;
 }
 
+
+
+/*
+Heapsort first makes the array into a max-heap.
+
+Then, it switches the head with the first unsorted node. The head is now sorted.
+
+Then, sink the new head to it's proper location
+
+Heap = "Relevant"
+Current = "Current"
+Parent = "Special"
+*/
+var heapStarted = false;
+var makeHeapStep;               //making a heap has two distinct steps, adding a Node to the heap and swiming it up
+var numHeapNodes;               //the number of nodes in the heap properly
+var heapIndex;                  //The Node we are about/just added to the heap
+var currentHeapPosition;        //The position of the current Node
+var heapSwimStep;                   //Swimming takes two steps. Setting the parent and swapping if needed
+var heapParentIndex;            //Index of the parent of the current Node
+var heapOldPosition;                //The immediate previos position of the current Node. Helps for coloring
+
+
+function startHeap(){
+    makeHeapStep = 1;
+    numHeapNodes = 1;
+    orderArray = getOrder();
+    heapIndex = 0;    
+    heapStarted = true;
+    heapSwimStep = 1;
+    heapOldPosition = -1;
+}
+
+function runHeapStep(){
+    if(!heapStarted){
+        startHeap();
+    }
+
+    makeHeap();
+}
+
+function heapSort(){
+    if(!heapStarted){
+        startHeap();
+    }
+
+    //makeHeap();
+    wait = setInterval(makeHeap, delay);
+}
+
+//converts the array into a maximum heap
+function makeHeap(){
+
+    
+
+    //add a node to a heap and set it to current
+    if(makeHeapStep == 1){
+        heapAddNode();
+        return;
+    }else if(makeHeapStep == 2){        //Swim the node up if needed
+
+        //We are at the start of the heap. No more swimming possible
+        if(currentHeapPosition == 0){
+            setNodeOneHeap();
+            heapSwimStep = 1;
+            return;
+        }
+
+        if(heapSwimStep == 1){      //set the parent Node
+            heapSetParent();
+        }else if(heapSwimStep == 2){        //compare to the parent Node
+            if(orderArray[currentHeapPosition] > orderArray[heapParentIndex]){      //we must swap
+                heapSwapWithParent();
+            }else{              //do not swap. Node is now in the heap proper
+                setToHeapSwim();
+            }
+            
+            heapSwimStep = 1;
+        }
+    }
+
+    //sorting is now done
+    if(heapIndex == 10){
+        heapEnd();
+        /*clearInterval(wait);
+        randomizeButton.disabled = false;
+        sortSelector.disabled = false;*/
+    }
+}
+
+
+//Adds the next node to heap and set it to current
+function heapAddNode(){
+    setClass(nodes[heapIndex], 2, "Current");      //set the first Node to the heap
+    currentHeapPosition = heapIndex;
+    addStep("Add Node " + (heapIndex + 1) + " to the heap and set it to \"current\".");
+    makeHeapStep = 2;
+}
+
+//set the first node to be properly heaped
+function setNodeOneHeap(){
+    addStep("Node 1 has no parent branches. Node 1 is now in the heap proper.");
+    setClass(nodes[0], 2, "Relevant");       //set the Node to the heap color
+    
+    if(heapOldPosition > 0){
+        setClass(nodes[heapOldPosition], 2, "Relevant");       //set the old Node to the heap color
+    }
+
+    heapOldPosition = -1;
+    heapIndex++;
+    makeHeapStep = 1;
+}
+
+function heapSetParent(){
+    if(heapOldPosition > 0){
+        setClass(nodes[heapOldPosition], 2, "Relevant");       //set the old Node to the heap color
+    }
+
+    heapParentIndex = Math.floor((currentHeapPosition - 1)/2);
+    setClass(nodes[heapParentIndex], 2, "Special");
+    addStep("Compare current node " + (currentHeapPosition + 1) + " to it's parent Node " + (heapParentIndex + 1) + ".");
+    heapSwimStep = 2;
+}
+
+function heapSwapWithParent(){
+    if(heapOldPosition > 0){
+        setClass(nodes[heapOldPosition], 2, "Relevant"); // set the old node to heap color
+    }
+
+    numSwap(currentHeapPosition, heapParentIndex);          //swaps the current node with it's parent
+    swapArray(orderArray, currentHeapPosition, heapParentIndex);
+    addStep("Current Node " + (currentHeapPosition + 1) + " is larger than it's parent node " + (heapParentIndex + 1) + ". Swap the nodes.");
+    heapOldPosition = currentHeapPosition;
+    currentHeapPosition = heapParentIndex;
+}
+
+function setToHeapSwim(){
+    addStep("Current Node " + (currentHeapPosition + 1) + " is less than or equal to it's parent node " + (heapParentIndex + 1) + " the node is now in the heap proper.");
+    setClass(nodes[heapParentIndex], 2, "Relevant");
+    setClass(nodes[currentHeapPosition], 2, "Relevant");
+    heapIndex++;
+    makeHeapStep = 1;
+}
+
+function heapEnd(){
+    clearInterval(wait);
+    randomizeButton.disabled = false;
+    sortSelector.disabled = false;
+}
+
 //Helper Methods
 //Helper Methods
 //Helper Methods
@@ -958,8 +1108,8 @@ function quickSortEnd(){
 
 
 /*
-This function switches the class of a node to a new slected one
-
+This function switches the class of a node to a new slected one. If index is one, it will change the size of the node. 
+If the index is two, it will change the color
 
 @param node: the node whoes class I want to change
 @param index: the index of the class I want to change
@@ -1085,6 +1235,7 @@ function resetStarted(){
     insertionStarted = false;
     bogoStarted = false;
     quickStarted = false;
+    heapStarted = false;
 }
 
 function resetColor(){
