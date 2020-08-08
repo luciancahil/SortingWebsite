@@ -1262,6 +1262,7 @@ var mergeStartsEnds;            //a stack that contains all the ends and starts 
                                 // The third element is whether this was a left or right subbaray, as we must merge after sorting a right array
 
 var mergeJustSorted;            //Whether what we just sorted was left or right
+var mergingStep;                //Merging takes 3 steps: preparation, setting indexes, and actually merging
 
 function mergeBegin(){
     mergeDivisionStep = 1;
@@ -1269,6 +1270,7 @@ function mergeBegin(){
     mergeStartsEnds = [];
     mergeStartsEnds.push([0, numNodes, "left"])         //left because no further sorts are needed
     mergeJustSorted = "left";
+    mergingStep = 1;
 }
 
 
@@ -1288,7 +1290,11 @@ function mergeSteps(){
 
         //prepare the next list for merging
         }else{
-            mergePrepareMerging();
+            if(mergingStep == 1){
+                mergePrepareMerging();
+            }else if(mergingStep == 2){
+                mergeSetIndexes();
+            }
         }
         
     }else if(mergeDivisionStep == 2){
@@ -1321,6 +1327,14 @@ function mergePrepareMerging(){
     for(let q = mergeStart; q < mergeMiddle; q++){
         setClass(nodes[q], 2, "Special");       //set all left nodes to proper color. Don't worry about right, as those are already colored
     }
+
+    mergingStep = 2;
+}
+
+function mergeSetIndexes(){
+    addStep("Set Step " + (mergeStart + 1) + " as \"Left Index\" and " + (mergeMiddle + 1) + " as \"Right Index\".");
+    setClass(nodes[mergeStart], 2, "Index");        // set the first left node as left index color
+    setClass(nodes[mergeMiddle], 2, "Combined");        // set the first right node as left index color
 }
 
 function mergeDivide(){
