@@ -1278,33 +1278,45 @@ function runMergeStep(){
 
 function mergeSteps(){
     if(mergeDivisionStep == 1){
-        let endStart = mergeStartsEnds[mergeStartsEnds.length - 1];
-        mergeStart = endStart[0];
-        mergeEnd = endStart[1];
-        addStep("Consider nodes "  + (mergeStart + 1)  + " to " + (mergeEnd) + ". Set them all to \"relevant\"");
-
-        for(let q = mergeStart; q < mergeEnd; q++){
-            setClass(nodes[q], 2, "Relevant");      //set all nodes in the sublist to "relevant"
-        }
-
-        mergeDivisionStep++;
+        mergeSetRelevant();
     }else if(mergeDivisionStep == 2){
-        //There is only one node here
-        if(mergeStart == mergeEnd -1){
-            addStep("The relvant nodes are sorted");
-        }else{
-            mergeMiddle = (mergeStart + mergeEnd)/2
+        mergeDivide();
+    }
+}
 
-            addStep("The relevant nodes have not been merge sorted. Set nodes " + (mergeStart + 1) + " to " + mergeMiddle + " as \"left\", and nodes " + (mergeMiddle + 1) + " to " + mergeEnd + " as \"right\".");
-        
-            for(let q = mergeStart; q < mergeMiddle; q++){
-                setClass(nodes[q], 2, "Special");
-            }
+function mergeSetRelevant(){
+    let endStart = mergeStartsEnds[mergeStartsEnds.length - 1];
+    mergeStart = endStart[0];
+    mergeEnd = endStart[1];
+    addStep("Consider nodes "  + (mergeStart + 1)  + " to " + (mergeEnd) + ". Set them all to \"relevant\"");
 
-            for(let q = mergeMiddle; q < mergeEnd; q++){
-                setClass(nodes[q], 2, "Current");
-            }
+    for(let q = mergeStart; q < mergeEnd; q++){
+        setClass(nodes[q], 2, "Relevant");      //set all nodes in the sublist to "relevant"
+    }
+
+    mergeDivisionStep++;
+}
+
+function mergeDivide(){
+    //There is only one node here
+    if(mergeStart == mergeEnd -1){
+        addStep("The relvant nodes are sorted");
+    }else{
+        mergeMiddle = Math.floor((mergeStart + mergeEnd)/2);
+
+        addStep("The relevant nodes have not been merge sorted. Set nodes " + (mergeStart + 1) + " to " + mergeMiddle + " as \"left\", and nodes " + (mergeMiddle + 1) + " to " + mergeEnd + " as \"right\".");
+
+        for(let q = mergeStart; q < mergeMiddle; q++){
+            setClass(nodes[q], 2, "Special");
         }
+
+        for(let q = mergeMiddle; q < mergeEnd; q++){
+            setClass(nodes[q], 2, "Current");
+        }
+
+        mergeStartsEnds.push([mergeMiddle, mergeEnd]);
+        mergeStartsEnds.push([mergeStart, mergeMiddle]);
+        mergeDivisionStep = 1;
     }
 }
 
